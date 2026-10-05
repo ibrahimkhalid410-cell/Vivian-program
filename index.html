@@ -233,6 +233,18 @@ canvas.chart{width:100%;height:170px;display:block}
 .flegend span{display:inline-flex;align-items:center;gap:6px}
 .sw{display:inline-block;width:14px;height:14px;border-radius:4px}
 .sw.pul{background:#F6D365;box-shadow:0 0 6px #F6D365}
+.frow{display:grid;grid-template-columns:1fr auto 28px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed rgba(148,182,212,.25);font-size:14.5px}
+.frow b{font-variant-numeric:tabular-nums}
+.x{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--deep);color:var(--mist);padding:0;font-size:12px}
+.fbad{border:1px dashed var(--warn);border-radius:var(--r3);padding:8px;margin-top:8px;background:rgba(242,193,78,.06)}
+.type::after{content:'';display:inline-block;width:2px;height:1em;background:var(--ball);margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.ptag.tg{min-height:1.4em;font-weight:700;font-size:15px;background:linear-gradient(90deg,#FF9A4D,#FFD27A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ptag.tg::after{background:#FFB25E}
+.coachline{margin:16px 2px 0;padding:12px 14px;border-left:3px solid var(--ball);background:linear-gradient(90deg,rgba(240,127,46,.12),rgba(240,127,46,0));border-radius:0 12px 12px 0;min-height:96px}
+.cl-from{display:block;font-size:12px;font-weight:700;color:var(--ball);margin-bottom:3px}
+.cl{font-family:var(--disp);font-weight:800;font-size:23px;line-height:1.12;color:var(--foam)}
+.smart{margin-top:8px;border:1px solid var(--ball);border-radius:var(--r3);padding:10px;background:rgba(240,127,46,.08)}
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important;transition:none!important}
 }
@@ -491,6 +503,101 @@ const MEALS = {
   {n:'Lentil soup and omelette',k:380,p:30,ic:[['soup',40,44,1.2],['omelette',66,46],['salad',52,72]],
    it:[['Lentil soup','300 ml','1 medium bowl'],['Omelette: 1 egg + 3 whites','150 g','1 egg + 3 whites'],['Salad','150 g','1 fist']]}]
 };
+
+/* =====================  FOOD DATABASE  =====================
+ [names (first = display, then aliases incl. Arabic), kcal per 100 g, protein per 100 g, grams for "1" of it, units in grams]
+ Values: standard composition tables (USDA FoodData Central style), cooked weights unless noted. Estimates, not lab values. */
+const FOODS=[
+ ['Egg|eggs|boiled egg|fried egg|بيض|بيضة|بيضه',143,12.6,50,{piece:50}],
+ ['Egg white|egg whites|whites|white|بياض|بياض بيض',52,11,33,{piece:33}],
+ ['Omelette|omelet|اومليت|أومليت',154,11,120,{}],
+ ['Chicken breast|chicken|grilled chicken|chicken breast|فراخ|صدور|صدر فراخ|دجاج|فراخ مشوية',165,31,120,{palm:110}],
+ ['Chicken thigh|thigh|ورك|وراك',209,26,100,{piece:100}],
+ ['Chicken shawarma (meat)|shawarma|شاورما',190,22,120,{}],
+ ['Shawarma sandwich|shawarma sandwich|ساندوتش شاورما',230,11,200,{piece:200,sandwich:200}],
+ ['Lean beef|beef|steak|meat|لحمة|لحم|لحمه',217,26,120,{palm:110}],
+ ['Kofta / minced beef|kofta|kufta|minced beef|ground beef|كفتة|كفته|لحمة مفرومة',250,24,120,{piece:40}],
+ ['Burger patty|patty|برجر لحم',250,22,110,{piece:110}],
+ ['Beef burger sandwich|burger|برجر',254,13,220,{piece:220,sandwich:220}],
+ ['Liver|كبدة|كبده',165,26,120,{}],
+ ['Tuna in water|tuna|تونة|تونه',116,26,120,{can:120}],
+ ['Tuna in oil|tuna in oil|تونة بالزيت',198,29,120,{can:120}],
+ ['White fish|fish|tilapia|bass|bluefish|fillet|سمك|بلطي|فيليه|بوري',128,26,150,{piece:150,palm:120}],
+ ['Salmon|سلمون',206,22,120,{piece:120}],
+ ['Shrimp|prawns|جمبري',99,24,120,{}],
+ ['Sardines|سردين',208,25,90,{can:90}],
+ ['Greek yogurt|greek yoghurt|زبادي يوناني',65,10,170,{cup:245,tub:170}],
+ ['Yogurt|yoghurt|plain yogurt|زبادي|زبادى',61,3.5,170,{cup:245,tub:110}],
+ ['Cottage cheese|cottage|قريش|جبنة قريش',98,11,200,{cup:225}],
+ ['White cheese / feta|feta|white cheese|cheese|جبنة|جبنة بيضاء|جبنة بيضا|دمياطي|اسطنبولي',264,14,30,{slice:30}],
+ ['Roumy / cheddar|roumy|cheddar|rumi|رومي|جبنة رومي|شيدر',390,25,30,{slice:20}],
+ ['Milk|full milk|لبن|حليب',61,3.2,240,{cup:240,glass:240}],
+ ['Skim milk|skim|low fat milk|لبن خالي الدسم',35,3.4,240,{cup:240,glass:240}],
+ ['Lentils|عدس',116,9,200,{cup:200}],
+ ['Lentil soup|شوربة عدس|شوربه عدس',70,4.5,300,{bowl:300,cup:250}],
+ ['Ful medames|ful|foul|fava|فول|فول مدمس',110,7,150,{cup:200,plate:200}],
+ ['Taameya / falafel|taameya|tameya|falafel|طعمية|طعميه|فلافل',333,13,20,{piece:20}],
+ ['Hummus|حمص بطحينة|hommos',166,8,30,{tbsp:15}],
+ ['Chickpeas|حمص الشام|حمص',164,9,160,{cup:160}],
+ ['White beans|beans|فاصوليا|فاصوليا بيضا',139,9.7,180,{cup:180}],
+ ['Rice|white rice|رز|أرز|ارز',130,2.7,150,{cup:160,tbsp:12,plate:250}],
+ ['Pasta|macaroni|spaghetti|مكرونة|مكرونه|معكرونة',158,5.8,150,{cup:140,plate:250}],
+ ['Koshari|koshary|كشري|كشرى',165,5,350,{plate:350,bowl:350}],
+ ['Bulgur / freekeh|bulgur|freekeh|فريك|برغل',83,3,150,{cup:180}],
+ ['Potato|potatoes|baked potato|boiled potato|بطاطس',87,1.9,170,{piece:170}],
+ ['French fries|fries|بطاطس محمرة|بطاطس مقلية',312,3.4,120,{}],
+ ['Chips|crisps|شيبسي',536,6.6,30,{bag:30}],
+ ['Sweet potato|بطاطا',90,2,150,{piece:150}],
+ ['Baladi bread|baladi|aish|عيش|عيش بلدي|رغيف',270,9,90,{loaf:90,piece:90}],
+ ['Shami bread|shami|عيش شامي',275,9,70,{loaf:70,piece:70}],
+ ['White bread / toast|bread|toast|white bread|توست|عيش فينو|فينو',265,9,30,{slice:30,piece:30}],
+ ['Whole wheat bread|whole wheat|brown bread|عيش اسمر|توست اسمر|عيش سن',247,13,35,{slice:35,loaf:80}],
+ ['Oats|oatmeal|شوفان',389,17,40,{tbsp:8,cup:80}],
+ ['Cornflakes|cereal|كورن فليكس',357,7,30,{cup:30}],
+ ['Banana|موز|موزة',89,1.1,120,{piece:120}],
+ ['Apple|تفاح|تفاحة',52,0.3,180,{piece:180}],
+ ['Orange|برتقال|برتقالة',47,0.9,150,{piece:150}],
+ ['Dates|date|تمر|بلح|تمرة',277,1.8,8,{piece:8}],
+ ['Grapes|عنب',69,0.7,150,{cup:150}],
+ ['Mango|مانجا|مانجو',60,0.8,200,{piece:200}],
+ ['Watermelon|بطيخ',30,0.6,300,{slice:300,cup:150}],
+ ['Strawberries|berries|فراولة|توت',32,0.7,150,{cup:150}],
+ ['Guava|جوافة',68,2.6,100,{piece:100}],
+ ['Salad|green salad|سلطة|سلطه|سلطة خضرا',20,1,150,{plate:150,bowl:200}],
+ ['Cucumber|خيار',15,0.7,120,{piece:120}],
+ ['Tomato|طماطم|قوطة',18,0.9,120,{piece:120}],
+ ['Vegetables|veg|veggies|خضار|خضروات',45,2,150,{cup:150,plate:200}],
+ ['Molokhia|molokheya|ملوخية|ملوخيه',60,3,250,{bowl:250,plate:250}],
+ ['Mahshi|stuffed vegetables|vine leaves|محشي|ورق عنب',140,3,40,{piece:40,plate:300}],
+ ['Okra stew|bamya|بامية|بامية',90,2.5,250,{bowl:250,plate:250}],
+ ['Peas stew|bisilla|بسلة|بسله',110,5,250,{bowl:250,plate:250}],
+ ['Olive oil|oil|زيت|زيت زيتون',884,0,13.5,{tbsp:13.5,tsp:4.5}],
+ ['Butter|زبدة|زبده',717,0.9,14,{tbsp:14,tsp:5}],
+ ['Ghee|سمنة|سمنه',900,0,13,{tbsp:13,tsp:4.5}],
+ ['Tahini|طحينة|طحينه',595,17,15,{tbsp:15,tsp:5}],
+ ['Peanut butter|زبدة فول سوداني',588,25,16,{tbsp:16,tsp:5}],
+ ['Almonds / nuts|nuts|almonds|لوز|مكسرات',579,21,28,{handful:28,piece:1.2}],
+ ['Walnuts|walnut|عين جمل',654,15,28,{handful:28,piece:4}],
+ ['Avocado|افوكادو',160,2,70,{piece:140,half:70}],
+ ['Black coffee|coffee|espresso|قهوة|قهوه|نسكافيه',2,0.1,240,{cup:240}],
+ ['Coffee with milk / latte|latte|cappuccino|coffee with milk|لاتيه|كابتشينو|قهوة باللبن',50,3,240,{cup:240}],
+ ['Tea|شاي|شاى',1,0,240,{cup:240}],
+ ['Tea with milk|tea with milk|شاي بلبن|شاي باللبن',30,1.5,240,{cup:240}],
+ ['Sugar|سكر',387,0,5,{tsp:5,tbsp:12.5,spoon:5}],
+ ['Honey|عسل',304,0.3,21,{tbsp:21,tsp:7}],
+ ['Juice|orange juice|عصير|عصير برتقال',45,0.7,250,{cup:250,glass:250}],
+ ['Soda|cola|pepsi|coke|بيبسي|كولا|حاجة ساقعة',42,0,330,{can:330}],
+ ['Chocolate|شوكولاتة|شوكولاته',546,4.9,40,{piece:10,bar:40}],
+ ['Cake|كيك|كيكة|تورتة',370,5,80,{slice:80,piece:80}],
+ ['Biscuits / cookies|biscuit|biscuits|cookies|بسكويت',480,6,30,{piece:10}],
+ ['Ice cream|ايس كريم|آيس كريم',207,3.5,100,{scoop:65,cup:130}],
+ ['Basbousa|بسبوسة|بسبوسه',380,4,80,{piece:80}],
+ ['Konafa|kunafa|كنافة|كنافه',400,5,100,{piece:100}],
+ ['Pizza|بيتزا',266,11,107,{slice:107}],
+ ['Feteer|فطير|فطيرة',350,7,150,{piece:150}],
+ ['Croissant|كرواسون',406,8,60,{piece:60}]
+];
+
 const SWAPS = {
  'Protein (about 30 g protein)':[['Chicken breast','160 g raw / 130 g cooked','1.5 palms'],['White fish','180 g raw','1 large fillet'],['Tuna in water','120 g drained','1 can'],['Shrimp','150 g cooked','about 12 medium'],['Lean beef','130 g raw','4 small kofta'],['Eggs','2 eggs + 4 whites','2 + 4'],['Greek yogurt','300 g','1¼ cups'],['Cottage cheese','250 g','1 cup']],
  'Carbs (about 30 g carbs)':[['Rice or pasta, cooked','100 g','½ cup or 4 tablespoons'],['Potato','200 g','1 medium'],['Sweet potato','150 g','1 small'],['Baladi bread','45 g','½ loaf'],['Toast bread','60 g','2 slices'],['Oats','40 g','5 tablespoons'],['Ful medames','150 g','¾ cup'],['Fruit','1 banana / 1 large apple','or 3 dates']],
@@ -501,8 +608,10 @@ const WHY = {
  rate:['Why about 1% per week?','In a study on athletes, the group that lost 0.7% of bodyweight per week lost more fat and gained muscle, while the faster group (1.4%) lost less fat. Slightly faster than 0.7% is fine for 12 weeks. Faster than that costs muscle, and muscle is what gives you shape.'],
  kcal:['Where does this number come from?','Mifflin-St Jeor (the most accurate everyday formula) × your activity level, minus about 30%. It updates every time you log a new weight, so it moves with you.'],
  protein:['Why so much protein?','About 2 g per kg of your goal weight. In a deficit, high protein plus heavy lifting is what protects muscle. All of it comes from real food: about 1.5 palms of protein at each of 4 meals.'],
+ foodlog:['How are calories counted?','Type what you ate in normal words, like 2 eggs, 1/2 baladi bread, 30g feta. The page matches each food to a table of standard food values (per 100 g) and turns your amount (pieces, slices, cups, tablespoons or grams) into calories and protein. Home portions vary, so think of it as a good estimate. Weighing a food once makes it much more precise.'],
+ pace:['How is your calorie target set?','Two steps. 1) Your daily burn: first from the Mifflin-St Jeor formula, and once you have 2–3 weeks of weigh-ins and food logs, from your own data: average calories eaten minus what the scale trend says you lost (about 7,700 kcal per kg of body weight). That measured burn replaces the formula step by step. 2) Your chosen weekly pace: 1% of bodyweight per week is the safe maximum when you lift and eat high protein; faster costs muscle (Garthe 2011). The target never goes below 1,300 kcal.'],
  smart:['How does Smart pick work?','It estimates your 1-rep max from last session (your reps plus the reps you had left) using the standard NSCA table that links % of max to reps, then tells you how many reps the planned weight should give you with about 2 left (RIR 2). Safety rules: only on full sessions, never in a deload week, never on wobbly-ankle days for single-leg work, and the jump is capped at +5% or one weight step. If your reps drop below the range, go back.'],
- musclesnow:['How does Your muscles now work?','Each muscle gets gold from two real things: how much stronger you got on its lifts since your first session (+25% = full), and how much leaner you are (scale trend toward your goal and waist cm, 8 cm = full). Abs, obliques and lower back lean more on the leaner part, because that is what makes them visible. The muscle lines sharpen as you get leaner. Pulsing muscles were worked in your last session. It is a picture of your numbers, not a body scan.'],
+ musclesnow:['How does Your muscles now work?','Each muscle gets gold from three real things: 1) strength: how much its lifts improved since the first time you did them (+25% = full), 2) training volume: hard sets it has done (40 sets = full; around 10 sets a week is the dose linked to more muscle growth in research), 3) leaner body: scale trend toward your goal and waist cm (8 cm = full). Abs, obliques and lower back depend more on the leaner part, because that is what makes them visible. The lines sharpen as you get leaner. Pulsing muscles were worked in your last session. It is a picture of your numbers, not a body scan.'],
  bodymap:['How is muscle progress measured?','Each muscle group is linked to its lifts (glutes: glute bridge and hip thrust, back: pulldown and rows, and so on). It compares your best estimated max now with your first session of this plan. +25% fills the bar, the gain untrained women typically reach in 12 weeks. Calves and ankle also fill with your Ankle rating.'],
  ghost:['What is Ghost Mode?','From week 7, every exercise shows what Block 1 you lifted in the same week of the block. Same plan, same week, six weeks apart: the only person you are racing is you.'],
  countdown:['How is the forecast made?','It draws a line through the help you use on the assisted pull-up across your sessions and shows where that line reaches zero help. Getting leaner moves it closer too. It is a forecast, not a promise, and it updates every Upper B.'],
@@ -522,7 +631,7 @@ const WHY = {
  hands:['Why hand portions?','Your hand grows and shrinks with you, and it travels everywhere. Weigh each food once in week 1 to learn what one portion looks like, then just use your hand.'],
  steps:['Why steps?','Daily walking is the biggest calorie lever outside the gym and it does not hurt recovery. Your sea walks count.'],
  rir:['What is RIR?','Reps in reserve: how many more clean reps you could have done. 1 to 2 means hard but controlled.'],
- ratings:['How do ratings work?','Each rating runs from 0 to 100 and is built only from your own numbers, anchored to published research: Strength = how much your main lifts improved (+25% = 100), Pull-up = 4 measured milestones, Ankle = left-leg balance vs the average for your age, Engine = daily steps (10,000 = 100), Consistency = weeks that counted out of 12. OVR is the average of the rated ones. Your best is kept, so it never goes down.'],
+ ratings:['How do ratings work?','Each rating runs from 0 to 100 and is built only from your own numbers: Strength = how much your 4 main lifts improved since the first time you did them (+25% = 100), Pull-up = 4 measured milestones, Ankle = left-leg balance test vs the average for your age plus the balance ladder, Engine = daily steps (10,000 = 100), Consistency = sessions done out of 36. OVR is the average of the rated ones. Your best is kept, so it never goes down.'],
  carry:['Why carries?','Carries train grip, core and posture at the same time, and they strengthen the lower back without bending it.'],
  bf:['How is body fat estimated?','The US Navy formula from waist, hips, neck and height. It is an estimate, but measured the same way every time, it shows the direction clearly.']
 };
@@ -568,10 +677,15 @@ function slope(){const w=weightsSorted().filter(x=>!x.c&&diffDays(x.d,today())<=
  const span=diffDays(w[0].d,w[w.length-1].d);if(span<7)return null;
  const xs=w.map(x=>diffDays(w[0].d,x.d)),ys=w.map(x=>x.kg),n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
  let nu=0,de=0;xs.forEach((x,i)=>{nu+=(x-mx)*(ys[i]-my);de+=(x-mx)**2});return de?nu/de:null}
-function targets(){const p=S.profile,w=latestW();const bmr=10*w+6.25*p.height-5*p.age-161;const tdee=bmr*p.activity;
- const kcal=Math.max(1400,Math.round(tdee*.69/10)*10);const P=Math.round(p.goal*2.1/5)*5;const F=Math.max(45,Math.round(p.goal*.75));
- const C=Math.max(80,Math.round((kcal-P*4-F*9)/4));
- return{bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,P,F,C,palms:Math.max(3,Math.round(P/27)),cups:Math.max(3,Math.round(C/25)),thumbs:Math.max(3,Math.round((F-15)/8)),fists:6}}
+function burnInfo(ft){const end=addDays(today(),-1),days=[];for(let i=1;i<=21;i++){const d=addDays(today(),-i),t=dayTotals(d);if(t.k>=900)days.push(t.k)}
+ const ws=S.weights.filter(w=>!w.c&&diffDays(w.d,today())<=21&&diffDays(w.d,today())>=0).sort((a,b)=>a.d<b.d?-1:1);let adaptive=null,wgt=0;
+ if(days.length>=10&&ws.length>=6&&diffDays(ws[0].d,ws[ws.length-1].d)>=14){const xs=ws.map(w=>diffDays(ws[0].d,w.d)),ys=ws.map(w=>w.kg),n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let nu=0,de=0;xs.forEach((x,i)=>{nu+=(x-mx)*(ys[i]-my);de+=(x-mx)**2});
+  const sl=de?nu/de:0,intake=days.reduce((a,b)=>a+b)/days.length;adaptive=clamp(intake-sl*7700,1200,3500);wgt=clamp((days.length-7)/14,0,1)}
+ return{ft,adaptive,wgt,days:days.length,tdee:adaptive==null?ft:ft*(1-wgt)+adaptive*wgt}}
+function targets(){const p=S.profile,w=latestW();const bmr=10*w+6.25*p.height-5*p.age-161;const ft=bmr*p.activity;const B=burnInfo(ft);const pace=S.pace??1;
+ const def=pace/100*w*7700/7;const kcal=Math.max(1300,Math.round((B.tdee-def)/10)*10);const P=Math.round(p.goal*2.1/5)*5;const F=Math.max(45,Math.round(p.goal*.75));
+ const C=Math.max(80,Math.round((kcal-P*4-F*9)/4));const realDef=B.tdee-kcal;
+ return{bmr:Math.round(bmr),tdee:Math.round(B.tdee),ft:Math.round(ft),B,pace,kgWeek:realDef*7/7700,kcal,P,F,C,palms:Math.max(3,Math.round(P/27)),cups:Math.max(3,Math.round(C/25)),thumbs:Math.max(3,Math.round((F-15)/8)),fists:6}}
 function bodyFat(m){const h=S.profile.height;if(!m||!m.waist||!m.hips||!m.neck)return null;const x=m.waist+m.hips-m.neck;if(x<=0)return null;
  return 495/(1.29579-.35004*Math.log10(x)+.221*Math.log10(h))-450}
 
@@ -609,8 +723,9 @@ function suggest(id,item){const e=EX[id],last=lastFor(id),n=weekNo();const hint=
  return{w:lw,txt:`Same weight. Beat ${reps.join(', ')}${unitTxt(e)}.`}}
 function metric(id,sets){const e=EX[id];const done=sets.filter(s=>s.d);if(!done.length)return null;
  if(e.assist){const ok=done.filter(s=>repsOf(e,s)>=1&&num(s.w)!=null);return ok.length?-Math.min(...ok.map(s=>num(s.w))):null}
- if(e.bw||num(done[0].w)==null)return Math.max(...done.map(s=>repsOf(e,s)));
- return Math.max(...done.map(s=>{const w=num(s.w)||0,r=repsOf(e,s);return r>0?w*(1+Math.min(r,12)/30):0}))}
+ if(e.bw)return Math.max(...done.map(s=>repsOf(e,s)));
+ const wd=done.filter(s=>num(s.w)!=null&&num(s.w)>0);if(!wd.length)return null;
+ return Math.max(...wd.map(s=>{const w=num(s.w),r=repsOf(e,s);return r>0?w*(1+Math.min(r,12)/30):0}))}
 function prText(id,sets){const e=EX[id];const done=sets.filter(s=>s.d);
  if(e.assist){const b=done.reduce((a,s)=>num(s.w)<num(a.w)?s:a);return`${e.n}: only ${b.w} kg of help`}
  if(e.bw)return`${e.n}: ${Math.max(...done.map(s=>repsOf(e,s)))}${unitTxt(e)}`;
@@ -661,22 +776,28 @@ function avgSteps(){const xs=[];for(let i=0;i<7;i++){const v=num(S.steps[addDays
  null = not rated yet (no data). STR: +25% on main lifts = 100 (12-week gains in untrained women ~25–30%, Pedersen 2022).
  PULL: 4 measured milestones x 25. ANKLE: left-leg eyes-closed balance, 50 = average woman 18–39 (13.1 s, Springer 2007), 100 = 30 s and even with right.
  ENGINE: best 7-day step average, 100 = 10,000 (benefit plateaus at 8–10k under 60, Paluch 2022). CONS: weeks that counted out of 12. */
-const RV=2,STR_IDS=['goblet','bbbridge','pulldown','ohp'];
+const RV=3,STR_IDS=['goblet','bbbridge','pulldown','ohp'];
 function firstMetric(id){const s=S.sessions.find(z=>z.ex[id]);return s?metric(id,s.ex[id].s.map(z=>Object.assign({d:1},z))):null}
 function bestSessMetric(id){let b=null;S.sessions.forEach(s=>{if(!s.ex[id])return;const v=metric(id,s.ex[id].s.map(z=>Object.assign({d:1},z)));if(v!=null&&(b==null||v>b))b=v});return b}
 function bestStepsWeek(){let best=null;const ds=Object.keys(S.steps).sort();ds.forEach(d=>{const v=[];for(let i=0;i<7;i++){const x=num(S.steps[addDays(d,-i)]);if(x!=null)v.push(x)}if(v.length>=3){const a=v.reduce((p,q)=>p+q)/v.length;if(best==null||a>best)best=a}});return best}
+const STR_FAM=[['Squat',['goblet','squat','legpress']],['Glute bridge',['bbbridge','hipthrust','glutebridge']],['Pulldown',['pulldown','sapulldown']],['Shoulder press',['ohp','machohp']]];
+function famPick(ids){let best=null,n=0;ids.forEach(id=>{const c=S.sessions.filter(s=>s.ex[id]&&metric(id,s.ex[id].s.map(z=>Object.assign({d:1},z)))!=null).length;if(c>n){n=c;best=id}});return best?{id:best,n}:null}
 function calc(){const bw=latestW(),out={},det={};
- const g=[];STR_IDS.forEach(id=>{const f=firstMetric(id),b=bestSessMetric(id);if(f&&b!=null){const pct=(b-f)/f;g.push(pct);det[id]=[f,b,pct]}});
- out.STR=g.length?clamp(g.reduce((a,b)=>a+b)/g.length/.25*100,0,100):null;det.STR=g;
- const hang=Math.max(testBest('hang','sec')||0,bestSessMetric('hang')||0),negs=testBest('negs','reps')||0,pu=testBest('pullup','reps')||0;
- const as=S.sessions.filter(s=>s.ex.assisted).map(s=>Math.min(...s.ex.assisted.s.map(z=>num(z.w)).filter(v=>v!=null)));
+ const g=[],base=[];STR_FAM.forEach(([nm,ids])=>{const f=famPick(ids);if(!f)return;const a=firstMetric(f.id),b=bestSessMetric(f.id);if(a==null||b==null)return;
+  if(f.n<2){base.push([nm,f.id]);return}const pct=(b-a)/a;g.push(pct);det[f.id]=[a,b,pct,nm]});
+ out.STR=g.length?clamp(g.reduce((x,y)=>x+y)/g.length/.25*100,0,100):(base.length?0:null);det.STRbase=base;
+ const hang=Math.max(testBest('hang','sec')||0,bestSessMetric('hang')||0),negs=Math.max(testBest('negs','reps')||0,bestSessMetric('negs')||0),pu=testBest('pullup','reps')||0;
+ const as=S.sessions.filter(s=>s.ex.assisted).map(s=>{const v=s.ex.assisted.s.map(z=>num(z.w)).filter(v=>v!=null);return v.length?Math.min(...v):null}).filter(v=>v!=null);
  let ap=null;if(as.length){const first=as[0],bestA=Math.min(...as),goal=.2*bw;ap=first<=goal?1:clamp((first-bestA)/(first-goal),0,1)}
  const anyPull=hang||negs||as.length||S.tests.some(t=>t.type==='pullup');
  out.PULL=anyPull?(pu>=1?100:Math.min(hang,30)/30*25+Math.min(negs,5)/5*25+(ap||0)*25):null;det.PULL={hang,negs,ap,pu,assist:as.length?Math.min(...as):null};
- const bt=latestTest('balance');if(bt){const l=num(bt.l)||0,r=num(bt.r)||0;const lp=l<=13.1?l/13.1*50:50+Math.min((l-13.1)/(30-13.1),1)*35;const sym=r?Math.min(l/r,1):1;out.ANKLE=clamp(lp+sym*15,0,100);det.ANKLE={l,r}}else out.ANKLE=null;
+ const bt=latestTest('balance');const ladP=(S.best.lad||0)*7.5;
+ if(bt){const l=num(bt.l)||0,r=num(bt.r)||0;const lp=l<=13.1?l/13.1*50:50+Math.min((l-13.1)/(30-13.1),1)*20;const sym=r?Math.min(l/r,1):1;out.ANKLE=clamp(lp+sym*15+ladP,0,100);det.ANKLE={l,r,lad:S.best.lad||0}}else{out.ANKLE=null;det.ANKLE={lad:S.best.lad||0}}
  const sw=bestStepsWeek();out.ENGINE=sw!=null?clamp(sw/10000*100,0,100):null;det.ENGINE=sw;
- out.CONS=S.sessions.length?clamp(countedWeeks()/12*100,0,100):null;
+ out.CONS=S.sessions.length?clamp(S.sessions.length/36*100,0,100):null;
  out.pu=pu;out.det=det;return out}
+function rebuildBest(){const m={};BASE.forEach(b=>{if(b.w&&b.r)m[b.id]=b.w*(1+Math.min(b.r,12)/30)});
+ S.sessions.forEach(s=>Object.entries(s.ex||{}).forEach(([id,x])=>{if(!EX[id])return;const v=metric(id,x.s.map(z=>Object.assign({d:1},z)));if(v!=null&&(m[id]==null||v>m[id]))m[id]=v}));S.best.m=m}
 const LAD=['Hold the rack','Fingertips','Free'];
 const TAGS={bronze:['Built to find my max.','Every rep is data.','Rookie today. Not for long.'],silver:['Climbing. Every. Week.','The numbers are moving.','Gold is next.'],gold:['Starter mentality.','Strong is my new normal.','Diamond is in sight.'],diamond:['Elite. Earned, not given.','This is what consistency builds.','Chasing the first rep.'],opal:['First rep. Not the last.','Proof beats promises.','Built different.']};
 const TAG=Object.fromEntries(Object.entries(TAGS).map(([k,v])=>[k,v[0]]));
@@ -744,7 +865,7 @@ function _renderToday(){if(S.live&&!PAUSE){renderSession();return}
  const dl=S.daily[today()]||{};const t=targets(),h=S.hands[today()]||{},hc=(h.p||0)+(h.c||0)+(h.v||0)+(h.f||0),ht=t.palms+t.cups+t.fists+t.thumbs;
  const gd=nd==='GD'?`<p class="small muted">${isDeload(n)?'This week Game Day is your Max Day: all tests plus a pull-up attempt.':'Game Day test this week: '+TESTS[TEST_ROT[(n-1)%4]].n+'.'}</p>`:'';
  view().innerHTML=`${cardHTML()}
- ${pullStrip()}
+ ${nextMoves()}${pullStrip()}
  <div class="coachline"><span class="cl-from">Coach Ibrahim</span><span class="type cl" data-lines='${esc(JSON.stringify(COACH_LINES))}'>${COACH_LINES[0]}</span></div>
  <section class="sec"><div class="phase"><h2>Week ${n}${n<=12?' of 12':''}</h2><span class="muted small">${phase(n)}</span></div>
   <div class="prog"><i style="width:${Math.min(100,n/12*100)}%"></i></div>
@@ -847,6 +968,7 @@ function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].
 function setFilled(e,s){return e.uni?(s.l!==''&&s.rt!==''):s.r!==''}
 function completeSet(k,i){const L=S.live,x=L.list.find(y=>y.k===k),e=EX[x.id],s=L.log[k].sets[i];
  if(!setFilled(e,s)){toast(e.uni?'Add reps for both sides first.':'Add your reps first.');return}
+ if(!e.bw&&!e.assist&&!(num(s.w)>0)){toast('Add the weight in kg first, so your progress can be measured.');const wi=document.querySelector(`input[data-k="${k}"][data-i="${i}"][data-f="w"]`);wi&&wi.focus();return}
  s.d=1;
  const nx=L.log[k].sets[i+1];if(nx&&!nx.d&&nx.w===''&&s.w!=='')nx.w=s.w;
  const idx=L.steps.findIndex(st=>st.k===k&&st.i===i),cur=L.steps[idx];
@@ -944,6 +1066,7 @@ function report(days){const from=addDays(today(),-(days-1));const ss=S.sessions.
  {const dd=[];for(let i=0;i<days;i++){const d=addDays(today(),-i);dd.push(d)}const D=dd.map(d=>S.daily[d]).filter(Boolean);const sts=D.map(x=>x.stress).filter(Boolean);
   const pm=dd.map(d=>S.hands[d]&&S.hands[d].pm).filter(x=>x!=null);
   t+=`Stress avg: ${sts.length?(sts.reduce((a,b)=>a+b)/sts.length).toFixed(1)+'/3':'-'}, sea walks: ${D.filter(x=>x.sea).length}, after-meal walks: ${D.filter(x=>x.post).length} days\nProtein meals: ${pm.length?(pm.reduce((a,b)=>a+b)/pm.length).toFixed(1)+'/4 per day':'-'}\nCycle-tagged weigh-ins: ${S.weights.filter(w=>w.c&&w.d>=from).length}\nBalance ladder best: ${LAD[S.best.lad||0]}\nPlateau check: ${plateau().title}\n`}
+ {const ks=[];for(let i=0;i<days;i++){const k=dayTotals(addDays(today(),-i)).k;if(k>=900)ks.push(k)}const tg=targets();t+=`Food logged: ${ks.length} days, average ${ks.length?Math.round(ks.reduce((a,b)=>a+b)/ks.length):'-'} kcal (target ${tg.kcal}, burn ${tg.tdee}${tg.B.adaptive!=null?' measured':' formula'})\n`}
  if(prs.length)t+=`\n🔥 PRs:\n${prs.map(p=>'- '+p.txt).join('\n')}\n`;
  if(tests.length)t+=`\nTests: ${tests.map(x=>x.type+' '+Object.entries(x).filter(([k])=>!['d','w','type'].includes(k)).map(([k,v])=>k+' '+v).join('/')).join('; ')}\n`;
  if(m1)t+=`\nMeasurements (${nice(m1.d)}): ${['waist','hips','chest','neck','thighL','thighR','armL','armR'].filter(k=>m1[k]).map(k=>k+' '+m1[k]+(m0&&m0!==m1&&m0[k]?` (${(m1[k]-m0[k]>=0?'+':'')+(m1[k]-m0[k]).toFixed(1)})`:'')).join(', ')}\n`;
@@ -959,6 +1082,13 @@ function pullForecast(){if((testBest('pullup','reps')||0)>=1)return{done:1};
  if(pts.length<3)return{need:3-pts.length};const n=pts.length,mx=pts.reduce((a,p)=>a+p.x,0)/n,my=pts.reduce((a,p)=>a+p.y,0)/n;let nu=0,de=0;pts.forEach(p=>{nu+=(p.x-mx)*(p.y-my);de+=(p.x-mx)**2});
  if(!de)return{need:1};const b=nu/de,a=my-b*mx,xn=diffDays(S.start,today()),cur=a+b*xn;if(b>-0.02)return{flat:1,help:pts[n-1].y};
  const days=Math.max(0,Math.round(cur/-b));if(days>300)return{flat:1,help:pts[n-1].y};return{date:addDays(today(),days),help:pts[n-1].y,days}}
+function nextMoves(){const{R,det}=ratings();const out=[];
+ if(det.STRbase&&det.STRbase.length)out.push(`Strength: baseline set on ${det.STRbase.map(b=>b[0]).join(', ')}. Repeat ${det.STRbase.length>1?'them':'it'} to see progress.`);
+ else if(R.STR==null)out.push('Strength: starts with your first Lower A or Upper A.');
+ if(R.ANKLE==null)out.push('Ankle: do the 1-minute balance test in Stats → Quick tests.');
+ if(R.ENGINE==null)out.push('Engine: type your steps below on 3 days.');
+ if(R.PULL==null)out.push('Pull-up: starts with Upper A negatives.');
+ return out.length?`<div class="panel" style="margin-top:12px"><b class="small" style="color:var(--ball)">What moves your card next</b>${out.map(x=>`<div class="small" style="margin-top:4px">• ${esc(x)}</div>`).join('')}</div>`:''}
 function pullStrip(big){const f=pullForecast();let t;
  if(f.done)t='<b style="color:var(--ball)">Done. You did it. 💎</b>';else if(f.date)t=`<b style="color:var(--ball)">around ${nice(f.date)}</b><span class="small muted"> (${f.days} days, using ${f.help} kg help now)</span>`;
  else if(f.flat)t=`<span class="small">Help is holding at ${f.help} kg. Beat your reps first, then the help drops.</span>`;else t=`<span class="small muted">Forecast appears after ${f.need} more Upper B session${f.need>1?'s':''}.</span>`;
@@ -1014,6 +1144,10 @@ function renderStats(){const n=weekNo();
   <div class="panel" style="padding:12px"><div class="stat">${S.prs.length}<small>PRs</small></div></div>
   <div class="panel" style="padding:12px"><div class="stat">${countedWeeks()}<small>weeks counted</small></div></div>
   <div class="panel" style="padding:12px"><div class="stat" style="color:var(--ball)">${jump?'+'+r05(jump.d):'-'}<small>${jump?esc('kg '+jump.n):'biggest jump'}</small></div></div></div>
+ <section class="sec"><h3>Quick tests</h3><p class="small muted">Any day, 1–2 minutes, after a short warm-up. Your best result counts.</p><div class="panel" style="margin-top:8px">
+  <b class="small">Single-leg balance, eyes closed (seconds)</b> ${whyBtn('ankle')}<div class="grid2" style="margin-top:6px"><input type="number" inputmode="decimal" id="qt_l" placeholder="Left"><input type="number" inputmode="decimal" id="qt_r" placeholder="Right"></div>
+  <b class="small" style="display:block;margin-top:10px">Flexed-arm hang (seconds)</b><input type="number" inputmode="decimal" id="qt_h" placeholder="Seconds" style="margin-top:6px">
+  <button class="btn primary block" style="margin-top:10px" data-act="qtest">Save results</button></div></section>
  <section class="sec"><h3>This week vs last week</h3><div class="panel" style="margin-top:10px">${wk.map(r=>`<div class="kv"><span>${r[0]}</span><b>${r[1]} <span style="color:${r[3]>0?'#4FD1A5':r[3]<0?'#F2C14E':'var(--mist)'}">${r[3]>0?'↑':r[3]<0?'↓':'→'}</span> <span class="muted small">last week ${r[2]}</span></b></div>`).join('')}</div></section>
  <section class="sec"><h3>Why you train</h3><div id="gwrap" style="margin-top:10px">${goalPhotoHTML()}</div></section>
  <section class="sec"><div class="row between"><h3>Your muscles now</h3>${whyBtn('musclesnow')}</div><p class="small muted">Each muscle turns gold as you get stronger on its lifts and leaner on the scale and tape. Pick an exercise to see what it works.</p><div id="fnow" style="margin-top:8px">${musclesNowHTML()}</div></section>
@@ -1085,7 +1219,8 @@ function renderFood(){const t=targets(),d=today(),h=S.hands[d]||{};const goal={p
  view().innerHTML=`<h2>Food</h2>
  <section class="sec"><div class="grid2"><div class="panel"><div class="stat">${t.kcal}<small>kcal a day ${whyBtn('kcal')}</small></div></div><div class="panel"><div class="stat">${t.P} g<small>protein ${whyBtn('protein')}</small></div></div>
   <div class="panel"><div class="stat">${t.C} g<small>carbs</small></div></div><div class="panel"><div class="stat">${t.F} g<small>fat</small></div></div></div>
-  <p class="small muted">Updates with your latest weight (${latestW()} kg). Maintenance is about ${t.tdee} kcal.</p></section>
+  <p class="small muted">Updates with your latest weight (${latestW()} kg) and your weekly pace.</p></section>
+ ${foodLogHTML()}${calPlanHTML()}
  <section class="sec"><div class="row between"><h3>Today in hands</h3>${whyBtn('hands')}</div><p class="small muted">Tap after each meal. No apps, no counting.</p>
   <div class="panel hands" style="margin-top:8px">${rows}
   <div class="row wrap" style="margin-top:4px"><button class="chip ${h.crea?'on':''}" data-act="supp" data-s="crea">⚡ Creatine 5 g</button></div></div></section>
@@ -1120,6 +1255,54 @@ ${mealGuide()}
   <button class="btn block" style="grid-column:1/-1" data-act="saveprof">Update</button></div></section>`}
 function kitchenText(){const t=targets();return`🍽️ Vivian's kitchen card\n\nDaily: about ${t.kcal} kcal, ${t.P} g protein.\n4 meals, each one:\n✋ ${r05(t.palms/4)} palm protein (chicken, fish, eggs, lean meat, yogurt)\n✊ 1–2 fists vegetables\n🤲 ${r05(t.cups/4)} cupped hand carbs (rice, potato, bread, fruit)\n👍 ${r05(t.thumbs/4)} thumb fat (oil, tahini, nuts, avocado)\n\nCooking oil: measure by the spoon, never pour.\nMore carbs in the meals around training.\nAll protein from real food.\n\n${mealsText()}\nWeek 1: weigh each food once to learn the portion, then just by eye.`}
 
+
+
+/* =====================  FOOD LOG  ===================== */
+const MEALN=['Breakfast','Lunch','Snack','Dinner'],MSPLIT={Breakfast:.25,Lunch:.35,Snack:.15,Dinner:.25};
+const FIDX=FOODS.map((f,i)=>({i,names:f[0].split('|').map(x=>x.toLowerCase())}));
+const UNITW={g:1,gram:1,grams:1,gm:1,gr:1,'جم':1,'جرام':1,kg:1000,ml:1,l:1000,cup:200,cups:200,'كوب':200,glass:240,'كباية':240,tbsp:15,tablespoon:15,tablespoons:15,spoon:15,spoons:15,'معلقة':15,'معالق':15,'معلقه':15,tsp:5,teaspoon:5,teaspoons:5,'معلقة صغيرة':5,
+ slice:30,slices:30,'شريحة':30,'شرايح':30,piece:0,pieces:0,pcs:0,pc:0,'حبة':0,'حبات':0,'قطعة':0,loaf:0,loaves:0,'رغيف':0,'ارغفة':0,can:120,cans:120,'علبة':120,bowl:300,'طبق':300,plate:300,handful:30,palm:100,'كف':100,fist:150,scoop:65,bar:40,bag:30,tub:170,sandwich:0,half:0};
+const UNORM={grams:'g',gram:'g',gm:'g',gr:'g','جم':'g','جرام':'g',cups:'cup','كوب':'cup',tablespoon:'tbsp',tablespoons:'tbsp',spoon:'tbsp',spoons:'tbsp','معلقة':'tbsp','معالق':'tbsp','معلقه':'tbsp',teaspoon:'tsp',teaspoons:'tsp',slices:'slice','شريحة':'slice','شرايح':'slice',pieces:'piece',pcs:'piece',pc:'piece','حبة':'piece','حبات':'piece','قطعة':'piece',loaves:'loaf','رغيف':'loaf','ارغفة':'loaf',cans:'can','علبة':'can','طبق':'bowl','كف':'palm','كباية':'glass'};
+const NUMW={a:1,an:1,one:1,two:2,three:3,four:4,five:5,six:6,half:.5,quarter:.25,'واحد':1,'واحدة':1,'اتنين':2,'تلاتة':3,'تلات':3,'اربعة':4,'نص':.5,'نصف':.5,'ربع':.25};
+function fnorm(t){return t.toLowerCase().replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/½/g,' 0.5 ').replace(/¼/g,' 0.25 ').replace(/¾/g,' 0.75 ').replace(/(\d)\s*\/\s*(\d)/g,(m,a,b)=>' '+(a/b)+' ').replace(/(\d)(g|gm|gr|ml|kg)\b/g,'$1 $2').replace(/\s+/g,' ').trim()}
+function lev(a,b){const m=a.length,n=b.length;if(!m||!n)return m||n;const d=Array.from({length:m+1},(_,i)=>[i]);for(let j=1;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function matchFood(t){let best=null,bl=0;FIDX.forEach(f=>f.names.forEach(nm=>{const re=new RegExp('(^|[^a-z\\u0600-\\u06ff])'+nm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'($|[^a-z\\u0600-\\u06ff])');if(re.test(t)&&nm.length>bl){best=f.i;bl=nm.length}}));
+ if(best!=null)return{i:best,sure:1};const words=t.split(' ').filter(w=>w.length>=4&&!UNITW.hasOwnProperty(w));let fb=null,fs=9;
+ words.forEach(w=>FIDX.forEach(f=>f.names.forEach(nm=>nm.split(' ').forEach(p=>{if(p.length<4)return;const dd=lev(w,p);if(dd<=Math.max(1,Math.floor(p.length/4))&&dd<fs){fs=dd;fb=f.i}}))));return fb!=null?{i:fb,sure:0}:null}
+function suggestFoods(t){const w=fnorm(t).split(' ').filter(x=>x.length>=3);return FIDX.map(f=>({i:f.i,sc:Math.min(...f.names.flatMap(nm=>nm.split(' ').map(p=>Math.min(...w.map(x=>lev(x,p)/Math.max(p.length,1)),9))))})).sort((a,b)=>a.sc-b.sc).slice(0,6).map(x=>x.i)}
+function parseChunk(raw){const t=fnorm(raw);if(!t)return null;const tk=t.split(' ');let q=null,unit=null;
+ tk.forEach(w=>{const n=parseFloat(w);if(!isNaN(n)&&/^[\d.]+$/.test(w)){q=(q==null?n:q*n)}else if(NUMW[w]!=null&&q==null&&w!=='half'){q=NUMW[w]}else if(w==='half'||w==='نص'){q=(q||1)*.5}else if(UNITW.hasOwnProperty(w)&&!unit)unit=UNORM[w]||w});
+ const m=matchFood(t);if(!m)return{raw,ok:0,id:Date.now()+Math.random()};return foodItem(raw,m.i,q,unit,m.sure)}
+function foodItem(raw,fi,q,unit,sure){const f=FOODS[fi];const u=f[4]||{};let g;q=q==null?1:q;
+ if(unit==='g'||unit==='ml')g=q;else if(unit==='kg'||unit==='l')g=q*1000;else if(unit&&u[unit]!=null)g=q*u[unit];else if(unit&&UNITW[unit])g=q*UNITW[unit];else g=q*f[3];
+ return{raw,fi,g:Math.round(g),k:Math.round(g*f[1]/100),p:Math.round(g*f[2]/100*10)/10,ok:1,sure:sure?1:0,id:Date.now()+Math.random()}}
+function parseFood(text){text=text.replace(/(tea|coffee) with milk/gi,m=>m.replace(/ with /i,'_w_'));return text.split(/,|\n|\+|،| and | with | مع | و /i).map(x=>x.replace(/_w_/g,' with ').trim()).filter(Boolean).map(parseChunk).filter(Boolean)}
+function dayFood(d){return(S.food&&S.food[d])||{}}
+function dayTotals(d){const f=dayFood(d);let k=0,p=0;MEALN.forEach(m=>(f[m]||[]).forEach(it=>{if(it.ok){k+=it.k;p+=it.p||0}}));return{k,p}}
+function foodLogHTML(){const t=targets(),d=today(),f=dayFood(d),tot=dayTotals(d),left=t.kcal-tot.k,pct=clamp(tot.k/t.kcal*100,0,100);
+ const meals=MEALN.map(m=>{const its=f[m]||[];const mk=its.reduce((a,b)=>a+(b.ok?b.k:0),0);const plan=Math.round(t.kcal*MSPLIT[m]/10)*10;
+  const rows=its.map(it=>it.ok?`<div class="frow"><span>${esc(FOODS[it.fi]?FOODS[it.fi][0].split('|')[0]:it.name||it.raw)}<span class="small muted"> ${it.custom?'':it.g+' g'}${it.sure===0?' (best guess: "'+esc(it.raw)+'")':''}</span></span><b>${it.k}</b><button class="x" data-act="fdel" data-m="${m}" data-id="${it.id}" aria-label="Remove">✕</button></div>`
+   :`<div class="fbad"><div class="small"><b>Not sure what "${esc(it.raw)}" is.</b> Pick the closest food, or type the calories:</div><div class="row" style="margin-top:6px;gap:6px"><select data-fixsel="${it.id}" data-m="${m}" style="flex:1"><option value="">Choose…</option>${suggestFoods(it.raw).map(i=>`<option value="${i}">${esc(FOODS[i][0].split('|')[0])}</option>`).join('')}<optgroup label="All foods">${FOODS.map((x,i)=>`<option value="${i}">${esc(x[0].split('|')[0])}</option>`).join('')}</optgroup></select><input type="number" inputmode="numeric" placeholder="kcal" data-fixk="${it.id}" style="width:74px"><button class="btn sm" data-act="ffix" data-m="${m}" data-id="${it.id}">OK</button><button class="x" data-act="fdel" data-m="${m}" data-id="${it.id}" aria-label="Remove">✕</button></div></div>`).join('');
+  return`<div class="panel" style="margin-top:10px"><div class="row between"><b>${m}</b><span class="small"><b style="color:${mk>plan*1.15?'var(--warn)':'var(--foam)'}">${mk}</b> <span class="muted">/ about ${plan} kcal</span></span></div>${rows}
+  <div class="row" style="margin-top:8px;gap:6px"><input type="text" id="fin-${m}" placeholder="What did you eat? e.g. 2 eggs, 1/2 baladi bread" style="flex:1" enterkeyhint="done"><button class="btn sm primary" data-act="fadd" data-m="${m}">Add</button></div>
+  <div class="chips" style="margin-top:6px">${(MEALS[m]||[]).map((x,i)=>`<button class="chip" style="font-size:12.5px;padding:5px 10px" data-act="fguide" data-m="${m}" data-i="${i}">+ ${esc(x.n)}</button>`).join('')}</div></div>`}).join('');
+ return`<section class="sec"><div class="row between"><h3>Today's food</h3>${whyBtn('foodlog')}</div>
+ <div class="panel" style="margin-top:10px;border-color:${left<0?'var(--warn)':'var(--line)'}"><div class="row between"><div class="stat">${tot.k}<small>eaten of ${t.kcal} kcal</small></div><div class="stat" style="text-align:right;color:${left<0?'var(--warn)':'var(--good)'}">${left<0?'+'+(-left):left}<small>${left<0?'kcal over':'kcal left'}</small></div></div>
+ <div class="prog" style="margin:10px 0 6px"><i style="width:${pct}%;background:${left<0?'var(--warn)':'var(--good)'}"></i></div>
+ <div class="row between small"><span>Protein <b>${Math.round(tot.p)}</b> of ${t.P} g</span><span class="muted">${tot.p>=t.P?'Protein done ✓':Math.max(0,Math.round(t.P-tot.p))+' g protein to go'}</span></div></div>${meals}</section>`}
+function addFoodItems(m,items){const d=today();S.food=S.food||{};const f=S.food[d]=S.food[d]||{};f[m]=(f[m]||[]).concat(items);save()}
+function calPlanHTML(){const t=targets(),B=t.B,w=latestW(),g=S.profile.goal;const wk=Math.max(0,12-weekNo()+1);const end=w-t.kgWeek*wk;const dGoal=t.kgWeek>0?Math.ceil((w-g)/t.kgWeek*7):null;
+ const need=wk>0?(B.tdee-((w-g)*7700/(wk*7))):null;
+ return`<section class="sec"><div class="row between"><h3>Your calorie plan</h3>${whyBtn('pace')}</div><div class="panel" style="margin-top:10px">
+ <div class="small muted">Weekly pace</div><div class="chips" style="margin-top:6px">${[[.5,'Steady 0.5%'],[.75,'Balanced 0.75%'],[1,'Fast 1% (max)']].map(([v,l])=>`<button class="chip ${t.pace===v?'on':''}" data-act="pace" data-v="${v}">${l}</button>`).join('')}</div>
+ <div class="kv" style="margin-top:10px"><span>Daily burn ${B.adaptive!=null?'(measured from your data)':'(formula estimate)'}</span><b>${t.tdee.toLocaleString()} kcal</b></div>
+ ${B.adaptive!=null?`<div class="kv"><span class="small muted">Formula ${t.ft.toLocaleString()}, your data ${Math.round(B.adaptive).toLocaleString()} (${B.days} logged days)</span></div>`:`<div class="kv"><span class="small muted">Log food and weight for 2–3 weeks and this becomes your measured burn.</span></div>`}
+ <div class="kv"><span>Target</span><b style="color:var(--ball)">${t.kcal.toLocaleString()} kcal</b></div>
+ <div class="kv"><span>Expected loss</span><b>${t.kgWeek.toFixed(2)} kg per week</b></div>
+ <div class="kv"><span>End of week 12</span><b>about ${end.toFixed(1)} kg</b></div>
+ ${dGoal!=null?`<div class="kv"><span>${g} kg</span><b>around ${nice(addDays(today(),dGoal))}</b></div>`:''}
+ ${need!=null&&wk>0?`<p class="small" style="margin:8px 0 0">${need<1300?`Reaching ${g} kg by week 12 would need about ${Math.round(need).toLocaleString()} kcal a day, which is below the safe floor of 1,300. The plan keeps you safe and gets you there a little later.`:`Reaching ${g} kg by week 12 needs about ${Math.round(need).toLocaleString()} kcal a day.`}</p>`:''}
+ <p class="small muted" style="margin:6px 0 0">About 1 kg of body weight = 7,700 kcal. The first 1–2 weeks often drop faster (water), then it settles.</p></div></section>`}
 
 /* =====================  MEAL PLATES  ===================== */
 let MTAB='Breakfast';
@@ -1180,7 +1363,7 @@ function renderMore(){view().innerHTML=`<h2>More</h2>
   <div class="row"><input id="start" type="date" value="${S.start}"><button class="btn primary" data-act="savestart">Save</button></div></section>
  <section class="sec"><h3>Backup</h3><p class="small muted">Everything lives on this phone. Copy your backup code before changing phones, then paste it on the new one.</p>
   <button class="btn block" data-act="backup">Copy backup code</button>
-  <textarea id="restore" placeholder="Paste a backup code here" style="margin-top:10px"></textarea><button class="btn block" style="margin-top:8px" data-act="restore">Restore from code</button></section>
+  <textarea id="restore" placeholder="Paste a backup code or an update link here" style="margin-top:10px"></textarea><button class="btn block" style="margin-top:8px" data-act="restore">Add from code or link</button></section>
  <section class="sec"><h3>Your week</h3><div class="panel" style="margin-top:10px">${ORDER.map(d=>`<div class="kv"><span><b>${DAYS[d].n}</b><br><span class="small muted">${DAYS[d].s}</span></span><span class="small muted" style="text-align:right">${DAYS[d].items.map(i=>EX[i.id].n).slice(0,3).join(', ')}…</span></div>`).join('')}
   <p class="small muted" style="margin-bottom:0">Same exercises for the whole 6-week block, so the numbers can climb. Space the 4 lifting days; Game Day fits anywhere. Plus 10,000 steps daily.</p></div></section>
  <div class="sig"><b>Coach Ibrahim</b><button class="link" data-act="chat">WhatsApp +20 100 570 7565</button></div>`}
@@ -1190,16 +1373,18 @@ function copyText(t){if(navigator.clipboard&&window.isSecureContext)return navig
 
 /* =====================  RATING EXPLAINER  ===================== */
 function rinfo(k){const{R,det}=ratings();const bw=latestW();const L=[];let how='',src='';const f1=v=>v.toFixed(1);
- if(k==='STR'){STR_IDS.forEach(id=>{const d=det[id];L.push(d?`${EX[id].n}: estimated 1-rep max ${f1(d[0])} → ${f1(d[1])} kg (${d[2]>=0?'+':''}${Math.round(d[2]*100)}%).`:`${EX[id].n}: needs your first session.`)});
-  how='Every PR on these four lifts raises it. +25% on average = 100.';src='Why 25%: in a 12-week study, untrained women improved their 1-rep max on the lat pulldown and leg press by about 25–30% (Pedersen et al. 2022). 1-rep max is estimated from your sets with the Epley formula.'}
- if(k==='PULL'){const d=det.PULL;L.push(`Flexed-arm hang: ${d.hang?d.hang+' s':'not tested'} of 30 s (25 points).`);L.push(`5-second negatives in a row: ${d.negs||'not tested'} of 5 (25 points).`);
+ if(k==='STR'){STR_FAM.forEach(([nm,ids])=>{const f=famPick(ids);if(!f){L.push(`${nm}: not logged yet.`);return}const d=det[f.id];
+   if(d)L.push(`${EX[f.id].n}: estimated max ${f1(d[0])} → ${f1(d[1])} kg (${d[2]>=0?'+':''}${Math.round(d[2]*100)}%).`);else L.push(`${EX[f.id].n}: baseline set (${f1(firstMetric(f.id))} kg estimated max). Progress shows the next time you do it.`)});
+  how='Beat your numbers on these 4 lifts. The first time you do a lift sets your starting point, the next times show progress. +25% on average = 100.';src='Why 25%: in a 12-week study, untrained women improved their 1-rep max on the lat pulldown and leg press by about 25–30% (Pedersen et al. 2022). Max is estimated from your sets (Epley formula).'}
+ if(k==='PULL'){const d=det.PULL;L.push(`Flexed-arm hang, best: ${d.hang?d.hang+' s':'not logged'} of 30 s (25 points).`);L.push(`Slow negatives in one set, best: ${d.negs||'not logged'} of 5 (25 points).`);
   L.push(`Assisted pull-up help: ${d.assist!=null?d.assist+' kg':'not logged'}, goal 20% of bodyweight = ${Math.round(.2*bw)} kg (25 points).`);L.push(`Strict pull-up: ${d.pu?d.pu:'not yet'} (the first one = 100).`);
-  how='Upper B and Game Day: longer hangs, more slow negatives, less help.';src='Four measured milestones on the way to your first rep, 25 points each. Nothing is estimated.'}
- if(k==='ANKLE'){const d=det.ANKLE;L.push(d?`Left leg, eyes closed: ${d.l} s. Right: ${d.r} s.`:'Needs the balance test (Game Day, week 3, or any Max Day).');
-  how='Left leg first in every single-leg move and the daily balance drill. 13.1 s = 50, 30 s with no gap to the right = 100.';src='50 is the average for women aged 18–39 with eyes closed: 13.1 seconds (Springer et al. 2007, 549 healthy adults).'}
- if(k==='ENGINE'){L.push(det.ENGINE!=null?`Best 7-day step average so far: ${Math.round(det.ENGINE).toLocaleString()} steps.`:'Needs at least 3 days of steps logged on the Today page.');
-  how='Log your steps daily. 10,000 a day on average = 100.';src='In a meta-analysis of 15 cohorts, the health benefit of steps kept growing up to about 8,000–10,000 a day for adults under 60 (Paluch et al. 2022).'}
- if(k==='CONS'){L.push(`Weeks that counted: ${countedWeeks()} of 12 (a week counts at 3 sessions).`);how='Three sessions in a week, short ones included. All 12 weeks = 100.';src='Simple and honest: how many of your 12 weeks you showed up for.'}
+  how='Counts from your sessions and tests: Upper A negatives, Upper B hang and assisted pull-ups.';src='Four measured milestones on the way to your first rep, 25 points each.'}
+ if(k==='ANKLE'){const d=det.ANKLE;L.push(d.l!=null?`Balance test, eyes closed: left ${d.l} s, right ${d.r} s.`:'Balance test: not done yet. It takes 1 minute: tap Quick tests in Stats.');
+  L.push(`Balance ladder on single-leg moves: ${LAD[d.lad]} (Fingertips +7.5, Free +15).`);
+  how='Do the 1-minute balance test (Stats, Quick tests) any time, and climb the balance ladder in Bulgarian split squats and step-ups.';src='Up to 70 points from your left-leg balance: 50 = the average for women aged 18–39 with eyes closed, 13.1 s (Springer et al. 2007), 70 = 30 s. Up to 15 for matching your right leg, up to 15 for the ladder.'}
+ if(k==='ENGINE'){L.push(det.ENGINE!=null?`Best 7-day step average: ${Math.round(det.ENGINE).toLocaleString()} steps.`:'Needs steps logged on at least 3 days (Today page, Daily box).');
+  how='Type your steps every evening on the Today page. 10,000 a day on average = 100.';src='The health benefit of steps keeps growing up to about 8,000–10,000 a day for adults under 60 (Paluch et al. 2022).'}
+ if(k==='CONS'){L.push(`Sessions done: ${S.sessions.length} of 36.`);L.push(`Weeks that counted (3+ sessions): ${countedWeeks()}.`);how='Every session adds to it, short ones too (Express and Clutch 30).';src='100 = 36 sessions, the minimum of 3 a week for 12 weeks.'}
  const nm=RKEYS.find(r=>r[0]===k)[1];
  sheet(`<h3>${nm}: ${R[k]==null?'not rated yet':R[k]+' / 100'}</h3><p class="small muted">Every rating runs from 0 to 100 and is built only from your own logged numbers. No numbers yet = no rating. It keeps your best, so it never goes down.</p>
  <div class="panel" style="margin-top:10px">${L.map(x=>`<div class="kv"><span>${esc(x)}</span></div>`).join('')}</div>
@@ -1269,7 +1454,7 @@ const EXM={goblet:[['quads','glutes'],['adductors','abs','lowback']],squat:[['qu
  latraise:[['delts'],['traps']],cablelat:[['delts'],['traps']],cablecurl:[['biceps'],['forearms']],dbcurl:[['biceps'],['forearms']],
  shuffle:[['glutes','calves'],['quads','adductors']],bounds:[['glutes','calves'],['quads','adductors']],balance:[['calves','glutes'],['tibialis']],rower:[['quads','lats'],['hams','glutes','biceps']],bike:[['quads'],['hams','glutes','calves']]};
 function figSVG(st){const lean=st.lean||0,blur=((1-lean)*1.1).toFixed(2),lineOp=(0.35+0.65*lean).toFixed(2);
- const fillFor=m=>{if(st.pri&&st.pri.includes(m))return'fill="#FF7A1A" fill-opacity=".92"';if(st.sec&&st.sec.includes(m))return'fill="#FFB877" fill-opacity=".8"';const l=(st.lv&&st.lv[m])||0;return l>.03?`fill="url(#fgGold)" fill-opacity="${(0.25+0.75*l).toFixed(2)}"`:'fill="none"'};
+ const fillFor=m=>{if(st.pri&&st.pri.includes(m))return'fill="#FF7A1A" fill-opacity=".92"';if(st.sec&&st.sec.includes(m))return'fill="#FFB877" fill-opacity=".8"';const l=(st.lv&&st.lv[m])||0;return l>.005?`fill="url(#fgGold)" fill-opacity="${(0.3+0.7*l).toFixed(2)}"`:'fill="none"'};
  const shimmer=RM?'':'<animate attributeName="x1" values="-1;1" dur="3.5s" repeatCount="indefinite"/><animate attributeName="x2" values="0;2" dur="3.5s" repeatCount="indefinite"/>';
  const fig=(parts,out,lines,ox,lab)=>{const mus=parts.map(([m,d])=>`<path d="${d}" ${fillFor(m)} class="${st.pulse&&st.pulse.includes(m)?'fpulse':''}${st.sel===m?' fsel':''}"/>`).join('');
   const ln=parts.map(([m,d])=>`<path d="${d}"/>`).join('')+lines.map(d=>`<path d="${d}"/>`).join('');
@@ -1290,10 +1475,11 @@ function figSVG(st){const lean=st.lean||0,blur=((1-lean)*1.1).toFixed(2),lineOp=
 
 function leanness(){const ws=weightsSorted(),out=[];if(ws.length){const s0=ws[0].kg,now=avg7()??ws[ws.length-1].kg,g=S.profile.goal;if(s0>g)out.push(clamp((s0-now)/(s0-g),0,1))}
  const ms=S.measures.filter(m=>m.waist);if(ms.length>1)out.push(clamp((ms[0].waist-ms[ms.length-1].waist)/8,0,1));return out.length?out.reduce((a,b)=>a+b)/out.length:0}
-function muscleState(){const gp={};muscleProgress().forEach(g=>gp[g.g]=g);const lean=leanness(),lv={};
- Object.keys(MUSC).forEach(m=>{const s=gp[M2G[m]]?gp[M2G[m]].lv:0;const core=['abs','obliques','lowback'].includes(m);lv[m]=S.sessions.length?clamp(core?.4*s+.6*lean:.65*s+.35*lean,0,1):0});
+function muscleSets(){const v={};S.sessions.forEach(s=>Object.entries(s.ex||{}).forEach(([id,x])=>{const mm=EXM[id];if(!mm)return;const n=x.s.length;mm[0].forEach(m=>v[m]=(v[m]||0)+n);mm[1].forEach(m=>v[m]=(v[m]||0)+n*.5)}));return v}
+function muscleState(){const gp={};muscleProgress().forEach(g=>gp[g.g]=g);const lean=leanness(),lv={},sets=muscleSets(),vol={};
+ Object.keys(MUSC).forEach(m=>{const s=gp[M2G[m]]?gp[M2G[m]].lv:0;const v=clamp((sets[m]||0)/40,0,1);vol[m]=v;const core=['abs','obliques','lowback'].includes(m);lv[m]=S.sessions.length?clamp(core?.25*s+.15*v+.6*lean:.45*s+.25*v+.3*lean,0,1):0});
  const last=S.sessions[S.sessions.length-1];let pulse=[];if(last&&diffDays(last.d,today())<=3)Object.keys(last.ex).forEach(id=>{if(EXM[id])pulse=pulse.concat(EXM[id][0])});
- return{lv,lean,pulse:[...new Set(pulse)],gp}}
+ return{lv,lean,pulse:[...new Set(pulse)],gp,sets,vol}}
 function lastWorked(m){for(let i=S.sessions.length-1;i>=0;i--){const s=S.sessions[i];if(Object.keys(s.ex).some(id=>EXM[id]&&(EXM[id][0].includes(m)||EXM[id][1].includes(m))))return s}return null}
 let FSEL=null,FEX='';
 function planExercises(){const out=[];ORDER.forEach(d=>DAYS[d].items.forEach((it,i)=>{const id=S.swaps[d+':'+i]||it.id;if(EXM[id]&&!out.some(o=>o[1]===id))out.push([DAYS[d].n,id])}));return out}
@@ -1301,7 +1487,7 @@ function musclesNowHTML(){const st=muscleState();let view;if(FEX&&EXM[FEX])view=
  let info='<span class="small muted">Tap any muscle.</span>';
  if(FSEL){const g=st.gp[M2G[FSEL]];const lw=lastWorked(FSEL);
   if(FEX&&EXM[FEX]){const role=EXM[FEX][0].includes(FSEL)?'a main muscle':EXM[FEX][1].includes(FSEL)?'a helper muscle':'not really used';info=`<b>${MUSC[FSEL]}</b><div class="small">In ${esc(EX[FEX].n)} this is ${role}.</div>`}
-  else info=`<b>${MUSC[FSEL]}</b> <b style="color:#F6D365">${Math.round(st.lv[FSEL]*100)}% gold</b><div class="small" style="margin-top:4px">Strength: ${g&&g.pct!=null?(g.pct>=0?'+':'')+Math.round(g.pct*100)+'% on its lifts':'no lifts logged yet'}<br>Definition (leaner body): ${Math.round(st.lean*100)}%<br>Last worked: ${lw?nice(lw.d)+', '+DAYS[lw.day].n:'not yet'}</div>`}
+  else info=`<b>${MUSC[FSEL]}</b> <b style="color:#F6D365">${Math.round(st.lv[FSEL]*100)}% gold</b><div class="small" style="margin-top:4px">Strength: ${g&&g.pct!=null?(g.pct>=0?'+':'')+Math.round(g.pct*100)+'% on its lifts':'no lifts logged yet'}<br>Hard sets so far: ${Math.round(st.sets[FSEL]||0)} (40 = full volume part)<br>Definition (leaner body): ${Math.round(st.lean*100)}%<br>Last worked: ${lw?nice(lw.d)+', '+DAYS[lw.day].n:'not yet'}</div>`}
  const opts=planExercises();const groups={};opts.forEach(([d,id])=>{(groups[d]=groups[d]||[]).push(id)});
  const legend=FEX?`<span><i class="sw" style="background:#FF7A1A"></i>Main muscles</span><span><i class="sw" style="background:#FFB877"></i>Helpers</span>`:`<span><i class="sw" style="background:linear-gradient(135deg,#B8860B,#F6D365,#C9971C)"></i>Gold = stronger + leaner</span><span><i class="sw pul"></i>Last session</span><span>Lines sharpen with definition: <b>${Math.round(st.lean*100)}%</b></span>`;
  return`<select id="fex" aria-label="Show"><option value="">My progress</option>${Object.entries(groups).map(([d,ids])=>`<optgroup label="${esc(d)}">${ids.map(id=>`<option value="${id}" ${FEX===id?'selected':''}>${esc(EX[id].n)}</option>`).join('')}</optgroup>`).join('')}</select>
@@ -1324,7 +1510,7 @@ function startType(){clearInterval(TYPE_I);const els=[...document.querySelectorA
 /* =====================  WHATSAPP SYNC  =====================
  One tap sends a link that carries all logged data (compressed). Opening it on the other phone merges it in.
  No server: data only travels inside the WhatsApp message. */
-const SYNC_KEYS=['start','profile','sessions','weights','measures','tests','steps','hands','daily','best','prs','swaps','lad','badges','song','goalTxt','ovr0','rv'];
+const SYNC_KEYS=['food','pace','start','profile','sessions','weights','measures','tests','steps','hands','daily','best','prs','swaps','lad','badges','song','goalTxt','ovr0','rv'];
 function b64u(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function unb64u(t){t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const b=atob(t),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
 async function packData(){const data={};SYNC_KEYS.forEach(k=>{if(S[k]!==undefined)data[k]=S[k]});const json=JSON.stringify({v:1,from:S.coach?'Coach Ibrahim':CLIENT.name,at:Date.now(),data});const raw=new TextEncoder().encode(json);
@@ -1346,6 +1532,7 @@ function mergeData(inc){const before=S.sessions.length;const add={sessions:0,wei
  (inc.tests||[]).forEach(x=>{const i=S.tests.findIndex(y=>y.w===x.w&&y.type===x.type);if(i<0){S.tests.push(x);add.tests++}else if((x.t||0)>(S.tests[i].t||0))S.tests[i]=x});
  Object.entries(inc.steps||{}).forEach(([d,v])=>{if(S.steps[d]==null||num(v)>num(S.steps[d]))S.steps[d]=v});
  Object.entries(inc.hands||{}).forEach(([d,h])=>{const a=S.hands[d]=S.hands[d]||{};Object.entries(h).forEach(([k,v])=>{if(typeof v==='number')a[k]=Math.max(a[k]||0,v);else if(v)a[k]=v})});
+ S.food=S.food||{};Object.entries(inc.food||{}).forEach(([d,day])=>{const a=S.food[d]=S.food[d]||{};Object.entries(day).forEach(([m,its])=>{const ids=new Set((a[m]||[]).map(x=>String(x.id)));a[m]=(a[m]||[]).concat(its.filter(x=>!ids.has(String(x.id))))})});if(S.pace==null&&inc.pace!=null)S.pace=inc.pace;
  Object.entries(inc.daily||{}).forEach(([d,h])=>{const a=S.daily[d]=S.daily[d]||{};Object.entries(h).forEach(([k,v])=>{if(k==='stress'){if(a.stress==null)a.stress=v}else if(v)a[k]=v})});
  const pk=new Set(S.prs.map(p=>p.d+p.txt));(inc.prs||[]).forEach(p=>{if(!pk.has(p.d+p.txt))S.prs.push(p)});S.prs.sort((a,b)=>a.d<b.d?-1:1);
  Object.entries(inc.badges||{}).forEach(([k,d])=>{if(!S.badges[k]||d<S.badges[k])S.badges[k]=d});
@@ -1427,14 +1614,26 @@ document.addEventListener('click',e=>{
  case'syncno':history.replaceState(null,'',pageURL());closeSheet();break;
  case'syncsend':sendSync(S.coach?'Here are your latest numbers from today 💪':'My latest numbers 💪');break;
  case'coachmode':S.coach=!S.coach;save();renderMore();toast(S.coach?'Coach mode on for this phone.':'Coach mode off.');break;
+ case'fadd':{const m=b.dataset.m,inp=$('#fin-'+m),v=inp.value.trim();if(!v){inp.focus();return}const its=parseFood(v);addFoodItems(m,its);const y=window.scrollY;renderFood();window.scrollTo(0,y);
+  const bad=its.filter(x=>!x.ok).length;toast(bad?`${its.length-bad} added. ${bad} need a quick pick below.`:`Added ${its.reduce((a,x)=>a+x.k,0)} kcal. ${Math.max(0,targets().kcal-dayTotals(today()).k)} left today.`);break}
+ case'fguide':{const m=b.dataset.m,x=MEALS[m][+b.dataset.i];addFoodItems(m,[{raw:x.n,name:x.n,custom:1,k:x.k,p:x.p,g:0,ok:1,id:Date.now()+Math.random()}]);const y=window.scrollY;renderFood();window.scrollTo(0,y);toast(`${x.n}: ${x.k} kcal added.`);break}
+ case'fdel':{const m=b.dataset.m,f=dayFood(today());f[m]=(f[m]||[]).filter(x=>String(x.id)!==b.dataset.id);save();const y=window.scrollY;renderFood();window.scrollTo(0,y);break}
+ case'ffix':{const m=b.dataset.m,f=dayFood(today()),arr=f[m]||[],ix=arr.findIndex(x=>String(x.id)===b.dataset.id);if(ix<0)break;const it=arr[ix];const sel=document.querySelector(`[data-fixsel="${b.dataset.id}"]`).value,kk=num(document.querySelector(`[data-fixk="${b.dataset.id}"]`).value);
+  if(kk!=null){arr[ix]={raw:it.raw,name:it.raw,custom:1,k:Math.round(kk),p:0,g:0,ok:1,id:it.id}}else if(sel!==''){const t=fnorm(it.raw);let q=null,unit=null;t.split(' ').forEach(w=>{const n=parseFloat(w);if(!isNaN(n)&&/^[\d.]+$/.test(w))q=n;else if(UNITW.hasOwnProperty(w)&&!unit)unit=UNORM[w]||w});arr[ix]=foodItem(it.raw,+sel,q,unit,1)}else{toast('Pick a food or type the calories.');break}
+  save();const y=window.scrollY;renderFood();window.scrollTo(0,y);break}
+ case'pace':S.pace=+b.dataset.v;save();{const y=window.scrollY;renderFood();window.scrollTo(0,y)}toast(`Target updated: ${targets().kcal} kcal.`);break;
+ case'qtest':{const l=num($('#qt_l').value),r=num($('#qt_r').value),h=num($('#qt_h').value),n=weekNo();if(l==null&&h==null){toast('Enter at least one result.');break}const before=ratings().ovr??0;
+  if(l!=null){S.tests=S.tests.filter(t=>!(t.w===n&&t.type==='balance'));S.tests.push({d:today(),w:n,type:'balance',l,r:r??l,t:Date.now()})}
+  if(h!=null){const old=S.tests.find(t=>t.w===n&&t.type==='hang');if(!old||h>num(old.sec)){S.tests=S.tests.filter(t=>!(t.w===n&&t.type==='hang'));S.tests.push({d:today(),w:n,type:'hang',sec:h,t:Date.now()})}}
+  const after=ratings().ovr??0;const nb=checkBadges();save();renderStats();toast(nb.length?'Badge unlocked: '+nb.map(x=>x.n).join(', '):`Saved. OVR ${before} → ${after}`,'Coach Ibrahim');break}
  case'mtab':MTAB=b.dataset.v;{const y=window.scrollY;renderFood();window.scrollTo(0,y)}break;
  case'rep':wa(report(+b.dataset.n));break;
  case'savesong':S.song=$('#song').value.trim();save();toast('Power song saved.');break;
  case'savestart':{const v=$('#start').value;if(v){S.start=v;save();toast('Start date saved.')}break}
  case'backup':copyText(backupCode()).then(()=>toast('Backup code copied. Keep it in your notes or send it to yourself.'));break;
- case'restore':{const v=$('#restore').value.trim();try{const o=JSON.parse(decodeURIComponent(escape(atob(v.replace(/^VIV1:/,'')))));if(!o||!Array.isArray(o.sessions))throw 0;S=Object.assign(fresh(),o);save();TAB='today';renderTab();toast('Restored.')}catch(err){toast('That code did not work. Copy the whole code and try again.')}break}
+ case'restore':{const v=$('#restore').value.trim();if(v.includes('#sync=')||/^[zj]1\./.test(v)){const code=v.includes('#sync=')?v.split('#sync=')[1].split(/\s/)[0]:v;location.hash='sync='+code;checkIncoming();break}try{const o=JSON.parse(decodeURIComponent(escape(atob(v.replace(/^VIV1:/,'')))));if(!o||!Array.isArray(o.sessions))throw 0;S=Object.assign(fresh(),o);save();TAB='today';renderTab();toast('Restored.')}catch(err){toast('That code did not work. Copy the whole code and try again.')}break}
  }});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.set input')){e.preventDefault();e.target.blur()}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id&&e.target.id.startsWith('fin-')){e.preventDefault();document.querySelector(`[data-act=fadd][data-m="${e.target.id.slice(4)}"]`).click();return}if(e.key==='Enter'&&e.target.matches('.set input')){e.preventDefault();e.target.blur()}
  if((e.key==='Enter'||e.key===' ')&&e.target.id==='pcard'){e.preventDefault();e.target.classList.toggle('flip')}});
 document.addEventListener('change',e=>{const t=e.target;if(!t.matches('.set input')||!S.live)return;const k=+t.dataset.k,i=+t.dataset.i,f=t.dataset.f;const L=S.live,s=L.log[k].sets[i];s[f]=t.value.trim();save();
  const x=L.list.find(y=>y.k===k),ex=EX[x.id];if(s.d)return;
@@ -1502,7 +1701,7 @@ window.addEventListener('resize',()=>setupCanvases());
 document.addEventListener('toggle',e=>{if(e.target.tagName==='DETAILS'){setupCanvases();if(e.target.id==='e1d'&&e.target.open)drawE1()}},true);
 
 /* =====================  BOOT  ===================== */
-load();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
+load();rebuildBest();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
 </script>
 </body>
 </html>
