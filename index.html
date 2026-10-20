@@ -268,7 +268,7 @@ const COACH_WA = '201005707565';
 const KEY = 'vivian-program-v1';
 /* Coach Ibrahim: write a short scouting note here every 2 weeks, then re-upload index.html (same link, her data stays).
    Leave text empty to hide it. */
-const SCOUT = {date:'', text:''};
+const SCOUT = {date:'20 Oct', text:'New block: Burn circuits. Three exercises back to back, short rest after each round, a finisher at the end. Expect to sweat. Your back rules: if anything sends symptoms down the left leg, tap the red button and stop it. 12,000 steps a day.'};
 const CLIENT = {name:'Vivian', age:34, height:165, startWeight:77, goal:65, activity:1.5};
 
 /* =====================  EXERCISES  =====================
@@ -330,7 +330,15 @@ const EX = {
  bounds:{n:'Lateral bounds',pat:'bounds',bw:1,uni:1,cue:'Jump sideways off one leg, land soft on the other and freeze for 2 seconds. Quality only.'},
  balance:{n:'Single-leg balance (eyes closed)',pat:'balance',bw:1,uni:1,unit:'s',cue:'Stand on one leg near a wall, close your eyes. Left first.'},
  rower:{n:'Rower intervals',pat:'rower',bw:1,unit:'x',cue:'8 rounds: 30 seconds hard, 60 seconds easy. Legs, then body, then arms.'},
- bike:{n:'Bike intervals',pat:'bike',bw:1,unit:'x',cue:'8 rounds: 30 seconds hard, 60 seconds easy.'},
+ bike:{n:'Bike intervals',pat:'bike',bw:1,unit:'x',cue:'Upright bike or air bike. 8 rounds: 20 seconds hard, 40 seconds easy. Sit tall, no rounding. Type how many rounds you did.'},
+ bikesprint:{n:'Bike sprint',pat:'bike',bw:1,unit:'s',cue:'Upright bike or air bike. 40 seconds as hard as you can hold, sitting tall. Then straight to the next station.'},
+ sled:{n:'Sled push',pat:'sled',inc:5,unit:'len',cue:'Arms long, body leaning in one straight line from head to heel, short powerful steps. Back stays flat, the legs do the work. 1 length = about 20 m. Kg = plates on the sled.'},
+ ropes:{n:'Battle ropes',pat:'ropes',bw:1,unit:'s',cue:'Athletic stance, knees soft, chest up. Fast alternating waves from the shoulders. Ribs down, do not bend forward.'},
+ incwalk:{n:'Incline treadmill walk',pat:'carry',bw:1,unit:'min',cue:'Incline 8–12%, speed 5–6 km/h. Do not hold the rails. Walking is the best cardio for the back.'},
+ kickback:{n:'Cable glute kickback',pat:'abduct',inc:1,uni:1,cue:'Cuff on the ankle, hold the frame, hips square. Kick back and slightly out, squeeze 1 second. No arching: the back stays still. Left first.'},
+ pushdown:{n:'Cable pushdown',pat:'pushdown',inc:2.5,cue:'Elbows pinned to your sides, lock out hard, 2 seconds up.'},
+ curlup:{n:'McGill curl-up',pat:'deadbug',bw:1,cue:'On your back, one knee bent, hands under the lower back. Lift head and shoulders 2 cm as one block, hold 8 seconds. 5 reps. The spine does not bend.'},
+ walkwarm:{n:'Easy walk or bike',pat:'bike',bw:1,cue:'3 minutes easy to warm up. Walking is the best medicine for the lower back.'},
  /* prep drills */
  kneewall:{n:'Knee-to-wall',pat:'kneewall',bw:1,yt:'knee to wall ankle dorsiflexion mobility exercise',cue:'Foot a hand-length from the wall, knee touches the wall with the heel down. 10 per side, left first.'},
  slbal:{n:'Single-leg balance',pat:'balance',bw:1,yt:'single leg balance exercise ankle stability progression',cue:'30 seconds per side, left first. Too easy? Close your eyes.'},
@@ -382,6 +390,9 @@ const PAT = {
  deadbug:{k:[K(100,98,-90,180,90,180,90,180,180,180,180,0,0,0),K(100,98,-90,95,95,180,90,180,180,-90,-90,0,0,0)],pr:[]},
  birddog:{k:[K(80,0,80,0,-92,0,-92,0,0,0,0),K(80,0,80,0,-92,-90,-90,90,90,0,0)],pr:[]},
  backext:{k:[K(95,70,140,-45,-45,-45,-45,20,160,20,160,0,0,0),K(95,70,45,-45,-45,-45,-45,20,160,20,160,0,0,0)],pr:[['line',90,68,103,81,7],['line',60,103,66,98,4]]},
+ sled:{k:[K(96,0,48,48,-30,-22,-8,100,80,100,80),K(104,0,48,-22,-8,48,-30,100,80,100,80)],pr:[['rect',140,62,14,42]]},
+ ropes:{v:'f',k:[K(100,0,4,22,-14,-22,14,40,70,20,95),K(100,0,4,22,-14,-22,14,20,95,40,70)],pr:[]},
+ pushdown:{k:[K(100,0,8,5,0,-5,0,2,115,2,115),K(100,0,8,5,0,-5,0,2,4,2,4)],pr:[['cable',138,8,'F']]},
  carry:{k:[K(100,0,2,22,-5,-18,-15,4,4,-4,-4),K(100,0,2,-18,-15,22,-5,-4,-4,4,4)],pr:[['db']]},
  suitcase:{k:[K(100,0,2,22,-5,-18,-15,4,4,-4,-4),K(100,0,2,-18,-15,22,-5,-4,-4,4,4)],pr:[['dbF']]},
  shuffle:{v:'f',k:[K(92,0,0,30,-10,-30,10,25,60,-25,-60),K(108,0,0,15,-5,-15,5,25,60,-25,-60)],pr:[]},
@@ -398,7 +409,7 @@ const PAT = {
 
 /* =====================  PROGRAM  =====================
  g: group. Same group = superset (A1/A2). 'P' = pull-up practice (no superset). */
-const PREP = ['kneewall','slbal','tibialis','wgs'];
+const PREP = ['walkwarm','curlup','birddog','sideplank','slbal'];
 const COOL = ['calfst','hipflex','breathe'];
 const SONG_DEFAULT = 'https://www.youtube.com/results?search_query=Gonna+Fly+Now+Rocky+theme';
 /* Where she started: the plan before October 2026 (as written by Coach Ibrahim) */
@@ -417,49 +428,62 @@ const BASE = [
  {old:'Shoulder machine',t:'empty machine',id:'machohp'},
  {old:'Jump rope, mountain climbers between sets',t:'every session',id:'rower',note:'Moved to Game Day intervals, so lifting sets stay strong.'}
 ];
+/* BURN BLOCK (from 21 Oct): circuits. Same g = one circuit, done back to back; rest comes after each full round.
+ back: what to use on a "sensitive back/leg" day. No spinal loading, no loaded bending, no jumping. */
 const DAYS = {
- LA:{n:'Lower A',s:'Squat + ankle',items:[
-  {g:'1',id:'goblet',sets:4,r:[6,8],main:1,alt:['legpress','squat'],rest:150},
-  {g:'2',id:'dbrdl',sets:3,r:[8,10],alt:['rdl','pullthrough'],rest:90},
-  {g:'2',id:'deadbug',sets:3,r:[6,8]},
-  {g:'3',id:'bss',sets:3,r:[8,10],alt:['bsssup','revlunge','legpress'],ankle:'bsssup',rest:90},
-  {g:'3',id:'slcalf',sets:3,r:[12,15],alt:['seatcalf']},
-  {g:'4',id:'legcurl',sets:3,r:[10,12],alt:['lyingcurl'],rest:75},
-  {g:'5',id:'backext',sets:2,r:[12,15],alt:['birddog'],rest:60}]},
- UA:{n:'Upper A',s:'Pull focus',items:[
-  {g:'P',id:'negs',sets:3,r:[3,3],alt:['scap'],rest:75},
-  {g:'1',id:'pulldown',sets:4,r:[6,8],main:1,alt:['sapulldown'],rest:120},
-  {g:'2',id:'inclinedb',sets:3,r:[8,10],alt:['machpress','inclpush'],rest:90},
-  {g:'2',id:'csrow',sets:3,r:[10,12],alt:['cablerow','sacablerow']},
-  {g:'3',id:'latraise',sets:3,r:[12,15],alt:['cablelat'],rest:60},
-  {g:'3',id:'facepull',sets:2,r:[12,15]},
-  {g:'4',id:'pallof',sets:2,r:[10,12],alt:['plank'],rest:45}]},
- LB:{n:'Lower B',s:'Hinge + glutes',items:[
-  {g:'1',id:'bbbridge',sets:4,r:[8,10],main:1,alt:['hipthrust','glutebridge','pullthrough'],rest:120},
-  {g:'2',id:'legpress',sets:3,r:[10,12],alt:['goblet'],rest:90},
-  {g:'3',id:'stepup',sets:3,r:[8,10],alt:['stepupsup','revlunge','legext'],ankle:'stepupsup',rest:75},
-  {g:'3',id:'seatcalf',sets:3,r:[12,15]},
-  {g:'4',id:'abduct',sets:3,r:[12,15],alt:['cableabd'],rest:60},
-  {g:'4',id:'suitcase',sets:3,r:[20,30]},
-  {g:'5',id:'birddog',sets:2,r:[6,8],alt:['deadbug'],rest:45}]},
- UB:{n:'Upper B',s:'Pull-up + push',items:[
-  {g:'P',id:'assisted',sets:3,r:[5,6],alt:['bandpull'],rest:90},
-  {g:'P',id:'hang',sets:2,r:[10,20],alt:['deadhang'],rest:60},
-  {g:'1',id:'ohp',sets:3,r:[8,10],main:1,alt:['machohp'],rest:120},
-  {g:'2',id:'sacablerow',sets:3,r:[10,12],alt:['cablerow','csrow'],rest:75},
-  {g:'2',id:'inclpush',sets:3,r:[6,12],alt:['machpress']},
-  {g:'3',id:'straightarm',sets:2,r:[12,15],rest:60},
-  {g:'3',id:'cablecurl',sets:2,r:[10,12],alt:['dbcurl']},
-  {g:'4',id:'sideplank',sets:2,r:[20,40],alt:['plank'],rest:45}]},
- GD:{n:'Game Day',s:'Challenge + engine',items:[
-  {g:'P',id:'scap',sets:3,r:[6,8],alt:['deadhang'],rest:60},
-  {g:'1',id:'shuffle',sets:3,r:[20,30],rest:45},
-  {g:'1',id:'bounds',sets:3,r:[5,6],ankle:'balance',gate:1},
-  {g:'2',id:'farmer',sets:3,r:[30,40],rest:75},
-  {g:'3',id:'rower',sets:1,r:[8,8],alt:['bike']}]}
+ LA:{n:'Lower Burn A',s:'Squat circuit',items:[
+  {g:'1',id:'goblet',sets:4,r:[8,10],main:1,alt:['legpress','legext'],back:'legext',rest:60},
+  {g:'1',id:'legcurl',sets:4,r:[10,12],alt:['lyingcurl']},
+  {g:'1',id:'deadbug',sets:4,r:[6,8]},
+  {g:'2',id:'legpress',sets:3,r:[12,15],alt:['legext'],back:'kickback',rest:60},
+  {g:'2',id:'bbbridge',sets:3,r:[10,12],alt:['glutebridge']},
+  {g:'2',id:'stepup',sets:3,r:[8,10],alt:['stepupsup','legext'],ankle:'stepupsup',back:'stepupsup'},
+  {g:'3',id:'abduct',sets:3,r:[15,20],alt:['cableabd'],rest:45},
+  {g:'3',id:'farmer',sets:3,r:[30,40]},
+  {g:'3',id:'sideplank',sets:3,r:[20,30]},
+  {g:'4',id:'bike',sets:1,r:[8,8],alt:['incwalk'],rest:0}]},
+ UA:{n:'Upper Burn A',s:'Pull circuit',items:[
+  {g:'1',id:'pulldown',sets:4,r:[8,10],main:1,alt:['sapulldown'],rest:60},
+  {g:'1',id:'inclinedb',sets:4,r:[8,10],alt:['machpress']},
+  {g:'1',id:'pallof',sets:4,r:[10,12]},
+  {g:'2',id:'csrow',sets:3,r:[10,12],alt:['cablerow','sacablerow'],rest:60},
+  {g:'2',id:'ohp',sets:3,r:[10,12],alt:['machohp']},
+  {g:'2',id:'ropes',sets:3,r:[20,30]},
+  {g:'3',id:'latraise',sets:3,r:[12,15],alt:['cablelat'],rest:45},
+  {g:'3',id:'facepull',sets:3,r:[12,15]},
+  {g:'3',id:'pushdown',sets:3,r:[12,15],alt:['cablecurl']},
+  {g:'4',id:'sled',sets:3,r:[2,2],alt:['incwalk'],rest:60}]},
+ LB:{n:'Lower Burn B',s:'Glute circuit',items:[
+  {g:'1',id:'bbbridge',sets:4,r:[10,12],main:1,alt:['glutebridge'],rest:60},
+  {g:'1',id:'legext',sets:4,r:[12,15]},
+  {g:'1',id:'birddog',sets:4,r:[6,8]},
+  {g:'2',id:'stepup',sets:3,r:[10,12],alt:['stepupsup'],ankle:'stepupsup',back:'stepupsup',rest:60},
+  {g:'2',id:'legcurl',sets:3,r:[12,15],alt:['lyingcurl']},
+  {g:'2',id:'seatcalf',sets:3,r:[15,20]},
+  {g:'3',id:'kickback',sets:3,r:[12,15],alt:['cableabd'],rest:45},
+  {g:'3',id:'suitcase',sets:3,r:[20,30]},
+  {g:'3',id:'deadbug',sets:3,r:[6,8]},
+  {g:'4',id:'incwalk',sets:1,r:[10,10],alt:['bike'],rest:0}]},
+ UB:{n:'Upper Burn B',s:'Push circuit',items:[
+  {g:'1',id:'assisted',sets:4,r:[6,8],main:1,alt:['bandpull','negs'],rest:60},
+  {g:'1',id:'machpress',sets:4,r:[10,12],alt:['inclinedb','inclpush']},
+  {g:'1',id:'sideplank',sets:4,r:[20,30]},
+  {g:'2',id:'sacablerow',sets:3,r:[10,12],alt:['cablerow','csrow'],rest:60},
+  {g:'2',id:'latraise',sets:3,r:[12,15],alt:['cablelat']},
+  {g:'2',id:'ropes',sets:3,r:[20,30]},
+  {g:'3',id:'straightarm',sets:3,r:[12,15],rest:45},
+  {g:'3',id:'cablecurl',sets:3,r:[12,15],alt:['dbcurl']},
+  {g:'3',id:'pallof',sets:3,r:[10,12]},
+  {g:'4',id:'bike',sets:1,r:[8,8],alt:['incwalk'],rest:0}]},
+ GD:{n:'Sweat Day',s:'40 on, 20 off',items:[
+  {g:'1',id:'bikesprint',sets:5,r:[40,40],alt:['incwalk'],rest:60},
+  {g:'1',id:'sled',sets:5,r:[1,1],alt:['farmer']},
+  {g:'1',id:'ropes',sets:5,r:[30,40]},
+  {g:'1',id:'incwalk',sets:5,r:[1,1]},
+  {g:'2',id:'farmer',sets:2,r:[30,40],rest:60}]}
 };
 const ORDER = ['LA','UA','LB','UB','GD'];
-const SHORT = {LA:'Low A',UA:'Up A',LB:'Low B',UB:'Up B',GD:'Game'};
+const SHORT = {LA:'Low A',UA:'Up A',LB:'Low B',UB:'Up B',GD:'Sweat'};
 
 /* weekly challenge tests (Game Day). Weeks 6 and 12 = Max Day (all tests) */
 const TESTS = {
@@ -605,6 +629,8 @@ const SWAPS = {
 };
 
 const WHY = {
+ back:['Why ask about your back?','On a sensitive day the squat and leg press switch to machines that keep your spine still (leg extension, supported step-ups). The rule from your doctor and me: training is good for the back, but anything that sends pain or tingling further down the leg gets stopped. Pain that stays in the back or eases is fine.'],
+ circuit:['Why circuits now?','Three exercises back to back with rest only after the round keeps your heart rate high, so the same 50 minutes burn clearly more than straight sets, while the main lift stays heavy enough to keep your muscle (metabolic resistance training). Sweat itself is not fat loss, it is cooling. The fat loss comes from the calories: the training adds to the deficit, the food decides it.'],
  rate:['Why about 1% per week?','In a study on athletes, the group that lost 0.7% of bodyweight per week lost more fat and gained muscle, while the faster group (1.4%) lost less fat. Slightly faster than 0.7% is fine for 12 weeks. Faster than that costs muscle, and muscle is what gives you shape.'],
  kcal:['Where does this number come from?','Mifflin-St Jeor (the most accurate everyday formula) × your activity level, minus about 30%. It updates every time you log a new weight, so it moves with you.'],
  protein:['Why so much protein?','About 2 g per kg of your goal weight. In a deficit, high protein plus heavy lifting is what protects muscle. All of it comes from real food: about 1.5 palms of protein at each of 4 meals.'],
@@ -706,7 +732,8 @@ function plateau(){const ws=S.weights.filter(w=>diffDays(w.d,today())<=21&&diffD
 /* =====================  TRAINING ENGINE  ===================== */
 function repsOf(e,s){return e.uni?Math.min(num(s.l)??0,num(s.rt)??0):(num(s.r)??0)}
 function lastFor(id){for(let i=S.sessions.length-1;i>=0;i--){const x=S.sessions[i].ex&&S.sessions[i].ex[id];if(x&&x.s&&x.s.length)return Object.assign({d:S.sessions[i].d},x)}return null}
-function unitTxt(e){return e.unit==='s'?'s':e.unit==='x'?' rounds':''}
+function unitTxt(e){return e.unit==='s'?'s':e.unit==='x'?' rounds':e.unit==='min'?' min':e.unit==='len'?' lengths':''}
+const unitLab=e=>e.unit==='s'?'sec':e.unit==='x'?'rounds':e.unit==='min'?'min':e.unit==='len'?'lengths':'reps';
 function setTxt(e,s){const u=unitTxt(e);const reps=e.uni?`${s.l}/${s.rt}${u}`:`${s.r}${u}`;
  if(e.bw)return reps;const w=num(s.w);if(w==null)return reps;return e.assist?`${reps} (help ${w})`:`${w}×${reps}`}
 function suggest(id,item){const e=EX[id],last=lastFor(id),n=weekNo();const hint=e.hint?e.hint+' ':'';
@@ -750,10 +777,11 @@ function smartPick(id,item,mode,ankleSafe){const e=EX[id];if(e.bw||e.assist||!e.
  if(up)txt+=` You also have room for ${up} kg × ${hi}: one step, inside the safe limit.`;
  return{w:up,txt}}
 function gateOpen(){return(S.best.rat.ANKLE||0)>=50||weekNo()>=5}
-function resolveId(day,i,it,ankleSafe){let id=S.swaps[day+':'+i]||it.id;if(!EX[id])id=it.id;if(it.gate&&!gateOpen())id='balance';if(ankleSafe&&it.ankle)id=it.ankle;return id}
-function buildSession(day,mode,ankleSafe){const n=weekNo(),items=DAYS[day].items;
+function resolveId(day,i,it,ankleSafe,backSafe){let id=S.swaps[day+':'+i]||it.id;if(!EX[id])id=it.id;if(it.gate&&!gateOpen())id='balance';if(ankleSafe&&it.ankle)id=it.ankle;if(backSafe&&it.back)id=it.back;
+ const av=S.avoid||{};if(av[id]){const ok=[it.back,...(it.alt||[]),it.id].filter(Boolean).find(z=>EX[z]&&!av[z]);if(ok)id=ok}return id}
+function buildSession(day,mode,ankleSafe,backSafe){const n=weekNo(),items=DAYS[day].items;
  let list=items.map((it,i)=>{let sets=it.sets;if(it.main&&extraSet(n))sets++;if(isDeload(n)&&it.g!=='P')sets=Math.max(2,sets-1);if(mode==='light')sets=Math.max(2,sets-1);
-  return{k:i,g:it.g,id:resolveId(day,i,it,ankleSafe),sets,r:it.r,main:!!it.main,rest:it.rest||75}});
+  return{k:i,g:it.g,id:resolveId(day,i,it,ankleSafe,backSafe),sets,r:it.r,main:!!it.main,rest:it.rest||75}});
  if(mode==='clutch'){const keep=[];const P=list.find(x=>x.g==='P');if(P)keep.push(Object.assign(P,{sets:2}));
   list.filter(x=>x.g==='1').forEach(x=>keep.push(Object.assign(x,{sets:Math.min(x.sets,3)})));list.filter(x=>x.g==='2').forEach(x=>keep.push(Object.assign(x,{sets:2})));list=keep}
  if(mode==='express'){const keep=[];const P=list.find(x=>x.g==='P');if(P)keep.push(Object.assign(P,{sets:2}));
@@ -874,11 +902,11 @@ function _renderToday(){if(S.live&&!PAUSE){renderSession();return}
  ${S.live?`<div class="panel" style="margin-top:14px;border-color:var(--ball)"><b>${DAYS[S.live.day].n} is in progress</b><div class="small muted">${S.live.steps.filter(st=>S.live.log[st.k].sets[st.i].d).length} of ${S.live.steps.length} sets logged</div><div class="grid2" style="margin-top:10px"><button class="btn ball" data-act="resume">Resume</button><button class="btn" data-act="abandon">Cancel it</button></div></div>`:''}
  <section class="sec"><button class="btn ball block" data-act="checkin" data-day="${nd}" style="font-size:18px;padding:16px">Start ${DAYS[nd].n}</button>
   <button class="btn block" data-act="checkin" data-day="${nd}" data-clutch="1" style="margin-top:8px">⚡ Short on time? ${DAYS[nd].n} in 30 minutes</button>
-  <p class="small muted" style="text-align:center;margin:8px 0 6px">${DAYS[nd].s}, about ${nd==='GD'?'40':'60'} minutes. Other days:</p>${gd}
+  <p class="small muted" style="text-align:center;margin:8px 0 6px">${DAYS[nd].s}, about ${nd==='GD'?'35':'50'} minutes. Other days:</p>${gd}
   <div class="chips" style="justify-content:center">${ORDER.filter(d=>d!==nd).map(d=>`<button class="chip" data-act="checkin" data-day="${d}">${DAYS[d].n}</button>`).join('')}</div></section>
  <section class="sec"><h3>Daily</h3><div class="panel" style="margin-top:10px">
   <div class="grid2"><div><label class="f" for="qw">Morning weight (kg)</label><input id="qw" type="number" inputmode="decimal" placeholder="${latestW()}"></div>
-  <div><label class="f" for="qs">Steps today</label><input id="qs" type="number" inputmode="numeric" placeholder="10000" value="${S.steps[today()]??''}"></div></div>
+  <div><label class="f" for="qs">Steps today</label><input id="qs" type="number" inputmode="numeric" placeholder="12000" value="${S.steps[today()]??''}"></div></div>
   <label class="row small" style="margin-top:8px;gap:8px"><input type="checkbox" id="qc" style="width:20px;height:20px"> Period or the days before it ${whyBtn('cycle')}</label>
   <button class="btn primary block" style="margin-top:10px" data-act="daily">Save</button>
   <div class="row between" style="margin-top:14px"><b class="small">Today's reset</b>${whyBtn('walk')}</div>
@@ -890,15 +918,16 @@ function _renderToday(){if(S.live&&!PAUSE){renderSession();return}
 
 /* =====================  CHECK-IN  ===================== */
 let CI={};
-function openCheckin(day,clutch){CI={day,mood:null,energy:null,sleep:null,ankle:'Steady',time:clutch?'Clutch 30':'Full 60 min',light:false};drawCheckin()}
+function openCheckin(day,clutch){CI={day,mood:null,energy:null,sleep:null,ankle:'Steady',time:clutch?'Clutch 30':'Full 50 min',light:false,back:'Calm'};drawCheckin()}
 function drawCheckin(){const f=['😣','😕','😐','🙂','😄'];
  const ok=CI.mood&&CI.energy&&CI.sleep;
  sheet(`<h3>Check-in: ${DAYS[CI.day].n}</h3><p class="small muted">Ten seconds. The session adapts to your answers.</p>
  <div class="q">Mood right now</div><div class="faces">${f.map((x,i)=>`<button class="face ${CI.mood===i+1?'on':''}" data-ci="mood" data-v="${i+1}" aria-label="Mood ${i+1} of 5">${x}</button>`).join('')}</div>
  <div class="q">Energy</div><div class="chips">${['High','Okay','Drained'].map(x=>`<button class="chip ${CI.energy===x?'on':''}" data-ci="energy" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Sleep last night ${whyBtn('sleep')}</div><div class="chips">${['7h+','6–7h','Under 6h'].map(x=>`<button class="chip ${CI.sleep===x?'on':''}" data-ci="sleep" data-v="${x}">${x}</button>`).join('')}</div>
- <div class="q">Time today ${whyBtn('clutch')}</div><div class="chips">${['Full 60 min','Clutch 30'].map(x=>`<button class="chip ${CI.time===x?'on':''}" data-ci="time" data-v="${x}">${x}</button>`).join('')}</div>
+ <div class="q">Time today ${whyBtn('clutch')}</div><div class="chips">${['Full 50 min','Clutch 30'].map(x=>`<button class="chip ${CI.time===x?'on':''}" data-ci="time" data-v="${x}">${x}</button>`).join('')}</div>
  ${CI.time==='Clutch 30'?`<p class="small" style="margin:6px 0 0;color:var(--ball)">Clutch 30 today: ${buildSession(CI.day,'clutch',false).list.map(x=>EX[x.id].n).join(', ')}. Short prep, shorter rests.</p>`:''}
+ <div class="q">Lower back and left leg today ${whyBtn('back')}</div><div class="chips">${['Calm','Sensitive'].map(x=>`<button class="chip ${CI.back===x?'on':''}" data-ci="back" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Left ankle today ${whyBtn('ankle')}</div><div class="chips">${['Steady','A bit wobbly'].map(x=>`<button class="chip ${CI.ankle===x?'on':''}" data-ci="ankle" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Period</div><div class="chips"><button class="chip ${CI.light?'on':''}" data-ci="light" data-v="1">I want the lighter version today</button></div>
  <p class="small muted">Your choice, never automatic.</p>
@@ -907,12 +936,13 @@ function drawCheckin(){const f=['😣','😕','😐','🙂','😄'];
 function modeOf(c){if(c.energy==='Drained')return'express';if(c.time==='Clutch 30')return'clutch';if(c.light)return'light';if(c.energy==='Okay'||c.sleep==='Under 6h')return'steady';return'full'}
 function modeTxt(m){const n=weekNo();if(isDeload(n)&&m!=='express'&&m!=='clutch')return'Deload week, RIR 3';
  return{clutch:'Clutch 30, counts as a full session',full:'Full session, RIR 1–2',steady:'Steady, RIR 2–3, no max attempts',express:'Express 20, counts as a full session',light:'Lighter version, RIR 3'}[m]}
-function startSession(){PAUSE=false;const mode=modeOf(CI),ankleSafe=CI.ankle!=='Steady';const b=buildSession(CI.day,mode,ankleSafe);
+function startSession(){PAUSE=false;const mode=modeOf(CI),ankleSafe=CI.ankle!=='Steady';const backSafe=CI.back==='Sensitive';const b=buildSession(CI.day,mode,ankleSafe,backSafe);
  const log={};b.list.forEach(x=>{const sg=suggest(x.id,x);log[x.k]={sets:Array.from({length:x.sets},(_,i)=>({w:i===0&&sg.w!==''?String(sg.w):'',r:'',l:'',rt:'',d:0})),rir:null,note:'',fin:0}});
- S.live={day:CI.day,mode,ankleSafe,checkin:{mood:CI.mood,energy:CI.energy,sleep:CI.sleep,ankle:CI.ankle,light:CI.light},t0:Date.now(),list:b.list,steps:b.steps,log,prep:[],open:null};
+ S.live={day:CI.day,mode,ankleSafe,backSafe,checkin:{mood:CI.mood,energy:CI.energy,sleep:CI.sleep,ankle:CI.ankle,light:CI.light,back:CI.back},t0:Date.now(),list:b.list,steps:b.steps,log,prep:[],open:null};
  save();closeSheet();renderSession();window.scrollTo(0,0);
  if(CI.day==='GD'&&isDeload(weekNo())&&mode!=='express'){rockyIntro();return}
- if(ankleSafe)toast('Wobbly-ankle day: split squats and step-ups use support today, no jumping. Same strength work.','Coach Ibrahim');
+ if(backSafe)toast('Sensitive back day: squats and leg press are swapped for machines that keep your back still. Stop anything that sends symptoms down the leg.','Coach Ibrahim');
+ else if(ankleSafe)toast('Wobbly-ankle day: split squats and step-ups use support today, no jumping. Same strength work.','Coach Ibrahim');
  else if(mode==='express')toast('Low battery day. 20 minutes, and it still counts as a full session.','Coach Ibrahim')}
 
 /* =====================  SESSION  ===================== */
@@ -937,7 +967,7 @@ function renderSession(){const L=S.live,n=weekNo(),D=DAYS[L.day];const cs=curSte
 function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].items[x.k];
  const isAct=act&&act.k===x.k,fin=exDone(x.k),open=isAct||L.open===x.k;
  const dnSets=lg.sets.filter(s=>s.d).length;
- const unit=e.unit==='s'?'sec':e.unit==='x'?'rounds':'reps';
+ const unit=unitLab(e);
  let st=fin?'Done':`Set ${Math.min(dnSets+1,x.sets)} of ${x.sets}`;
  if(!open)return`<div class="exc ${fin?'fin':''}"><button class="exh" data-act="open" data-k="${x.k}"><span class="lbl">${x.lab}</span><span><span class="nm">${esc(e.n)}</span><br><span class="st">${st}, ${x.r[0]===x.r[1]?x.r[0]:x.r[0]+'–'+x.r[1]} ${unit}${fin&&lg.rir!=null?', RIR '+lg.rir:''}${lg.pr?', 🔥 PR':''}</span></span></button>${fin&&!e.bw&&lg.rir==null?`<div class="exb"><div class="rir" style="margin-top:0"><div class="row between"><b>Last set: how many reps were left?</b>${whyBtn('rir')}</div><div class="chips" style="margin-top:8px">${['0','1','2','3','4+'].map((v,j)=>`<button class="chip" data-act="rir" data-k="${x.k}" data-v="${j}">${v}</button>`).join('')}</div></div></div>`:''}</div>`;
  const sg=suggest(x.id,x),last=lastFor(x.id);
@@ -949,7 +979,7 @@ function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].
   const wIn=noW?'':`<input type="number" inputmode="decimal" enterkeyhint="next" data-k="${x.k}" data-i="${i}" data-f="w" value="${esc(s.w)}" placeholder="${sg.w!==''?sg.w:'kg'}" aria-label="Set ${i+1} weight">`;
   const rIn=e.uni?`<input type="number" inputmode="numeric" enterkeyhint="next" data-k="${x.k}" data-i="${i}" data-f="l" value="${esc(s.l)}" placeholder="${x.r[1]}" aria-label="Set ${i+1} left"><input type="number" inputmode="numeric" enterkeyhint="next" data-k="${x.k}" data-i="${i}" data-f="rt" value="${esc(s.rt)}" placeholder="${s.l||x.r[1]}" aria-label="Set ${i+1} right">`
    :`<input type="number" inputmode="numeric" enterkeyhint="next" data-k="${x.k}" data-i="${i}" data-f="r" value="${esc(s.r)}" placeholder="${x.r[1]}" aria-label="Set ${i+1} ${unit}">`;
-  return`<div class="${cls} ${on?'on':''} ${s.d?'dn':''}"><span class="sn">${e.unit==='x'?'Total':'Set '+(i+1)}</span>${wIn}${rIn}<button class="ok" data-act="ok" data-k="${x.k}" data-i="${i}" aria-label="Mark set ${i+1} done">✓</button></div>`}).join('');
+  return`<div class="${cls} ${on?'on':''} ${s.d?'dn':''}"><span class="sn">${e.unit==='x'||(e.unit==='min'&&x.sets===1)?'Total':'Set '+(i+1)}</span>${wIn}${rIn}<button class="ok" data-act="ok" data-k="${x.k}" data-i="${i}" aria-label="Mark set ${i+1} done">✓</button></div>`}).join('');
  const rir=fin&&!e.bw?`<div class="rir"><div class="row between"><b>Last set: how many reps were left?</b>${whyBtn('rir')}</div><div class="chips" style="margin-top:8px">${['0','1','2','3','4+'].map((v,j)=>`<button class="chip ${lg.rir===j?'on':''}" data-act="rir" data-k="${x.k}" data-v="${j}">${v}</button>`).join('')}</div></div>`:'';
  const song=x.main&&S.song?`<a class="btn sm" href="${esc(S.song)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;margin-top:8px">▶ Power song: Gonna Fly Now</a>`:'';
  const alts=[item.id].concat(item.alt||[]).filter(a=>a!==x.id);
@@ -961,10 +991,15 @@ function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].
  <div class="last">${esc(lastTxt)}${gh?`<br><span style="color:#C9B8FF">👻 Block 1 you, week ${gh.w}: ${esc(gh.s.map(z=>setTxt(e,z)).join(', '))}</span> ${whyBtn('ghost')}`:''}<br><b>Today:</b> ${esc(sg.txt)} ${!e.bw?whyBtn('load'):''}</div>
  ${e.ladder?`<div class="row between" style="margin-top:10px"><b class="small">Balance ladder</b>${whyBtn('ladder')}</div><div class="chips" style="margin-top:6px">${LAD.map((t,j)=>`<button class="chip ${(lg.lad??S.lad[x.id]??0)===j?'on':''}" data-act="lad" data-k="${x.k}" data-v="${j}">${t}</button>`).join('')}</div>`:''}
  ${head}<div class="sets">${rows}</div>${rir}
+ ${fin?'':`<button class="btn sm block" style="margin-top:10px;border-color:#E5533D;color:#FF8A78" data-act="sym" data-k="${x.k}">⚠️ Leg symptoms worse? Stop this exercise</button>`}
  <details style="margin-top:10px"><summary class="small" style="cursor:pointer;color:var(--mist)">💬 Note to coach</summary>
   <textarea data-note="${x.k}" placeholder="How did it feel? Anything hurt?" style="margin-top:6px">${esc(lg.note)}</textarea>
   <button class="btn sm" style="margin-top:6px" data-act="note" data-k="${x.k}">Send note on WhatsApp</button></details>
  </div></div>`}
+function skipEx(k){const L=S.live,x=L.list.find(y=>y.k===k),e=EX[x.id],lg=L.log[k];lg.sets.forEach(s=>{if(!s.d){s.d=1;s.skip=1}});lg.fin=1;lg.skipped=1;
+ S.avoid=S.avoid||{};S.avoid[x.id]=today();save();renderSession();
+ toast(e.n+' is off your plan until Coach Ibrahim checks it. A safe swap comes next time.','Coach Ibrahim');
+ wa(`⚠️ Vivian: leg symptoms got worse during ${e.n} (${DAYS[L.day].n}, ${nice(today())}). I stopped it. Sets done before: ${lg.sets.filter(s=>s.d&&!s.skip).map(s=>setTxt(e,s)).join(', ')||'none'}`)}
 function setFilled(e,s){return e.uni?(s.l!==''&&s.rt!==''):s.r!==''}
 function completeSet(k,i){const L=S.live,x=L.list.find(y=>y.k===k),e=EX[x.id],s=L.log[k].sets[i];
  if(!setFilled(e,s)){toast(e.uni?'Add reps for both sides first.':'Add your reps first.');return}
@@ -1033,7 +1068,7 @@ function drawFinish(){const f=['😣','😕','😐','🙂','😄'];
  <button class="btn block" style="margin-top:8px" data-act="saveonly">Save only</button>`,{noAnim:FIN.re});FIN.re=1;
  $('#finnote').addEventListener('input',e=>FIN.note=e.target.value)}
 function saveSession(send){const L=S.live,before=S.best.ovr??0;const ex={};
- L.list.forEach(x=>{const lg=L.log[x.k];const sets=lg.sets.filter(s=>s.d).map(s=>{const o={w:s.w};if(EX[x.id].uni){o.l=s.l;o.rt=s.rt}else o.r=s.r;return o});
+ L.list.forEach(x=>{const lg=L.log[x.k];const sets=lg.sets.filter(s=>s.d&&!s.skip).map(s=>{const o={w:s.w};if(EX[x.id].uni){o.l=s.l;o.rt=s.rt}else o.r=s.r;return o});
   if(sets.length){const lad=EX[x.id].ladder?(lg.lad??S.lad[x.id]??0):undefined;if(lad!=null)S.best.lad=Math.max(S.best.lad||0,lad);if(ex[x.id])ex[x.id].s=ex[x.id].s.concat(sets);else ex[x.id]={s:sets,rir:lg.rir,note:lg.note||undefined,lad}}});
  const rec={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),by:S.coach?'coach':'client',d:today(),day:L.day,w:weekNo(),mode:L.mode,checkin:L.checkin,dur:Math.round((Date.now()-L.t0)/60000),ex,
   prs:L.list.map(x=>L.log[x.k].pr).filter(Boolean),after:{mood:FIN.mood,felt:FIN.felt,stars:FIN.stars,note:FIN.note},prep:L.prep.length,cool:(L.cool||[]).length};
@@ -1350,7 +1385,8 @@ function mealGuide(){const list=MEALS[MTAB];
 function mealsText(){return Object.entries(MEALS).map(([k,l])=>`${k.toUpperCase()} (pick one)\n`+l.map(m=>`• ${m.n}: `+m.it.map(([a,g,h])=>`${a} ${g}${h?' ('+h+')':''}`).join(', ')).join('\n')).join('\n\n')+'\n'}
 
 /* =====================  MORE  ===================== */
-function renderMore(){view().innerHTML=`<h2>More</h2>
+function renderMore(){const AV=Object.entries(S.avoid||{});view().innerHTML=`<h2>More</h2>
+ ${AV.length?`<section class="sec"><h3>Stopped for the back</h3><p class="small muted">These came off the plan because leg symptoms got worse. The plan uses a safe swap instead.</p><div class="panel">${AV.map(([id,d])=>`<div class="kv"><span>${esc(EX[id]?EX[id].n:id)} <span class="small muted">since ${nice(d)}</span></span><button class="btn sm" data-act="allow" data-id="${id}">Allow again</button></div>`).join('')}</div></section>`:''}
  <section class="sec"><h3>${S.coach?'Sync with Vivian':'Sync with Coach Ibrahim'}</h3><p class="small muted">${S.coach?'After logging her session on your phone, send this. She taps the link and her page fills in.':'One tap sends everything you logged. Coach Ibrahim taps the link and sees the same numbers. It also works the other way.'}</p>
   <button class="btn ball block" data-act="syncsend">🔄 ${S.coach?'Send update to Vivian':'Send my numbers to Coach Ibrahim'}</button>
   <p class="small muted" style="margin-top:6px">${S.lastSync?'Last sync: '+new Date(S.lastSync).toLocaleString():'Not synced yet.'} The data travels only inside the WhatsApp message.</p>
@@ -1441,7 +1477,7 @@ const FIG={
 };
 const MUSC={traps:'Traps',delts:'Shoulders',chest:'Chest',biceps:'Biceps',triceps:'Triceps',forearms:'Forearms',abs:'Abs',obliques:'Obliques',lats:'Lats',lowback:'Lower back',glutes:'Glutes',quads:'Quads',adductors:'Inner thighs',hams:'Hamstrings',calves:'Calves',tibialis:'Shins'};
 const M2G={traps:'back',lats:'back',delts:'shoulders',chest:'chest',biceps:'arms',triceps:'arms',forearms:'arms',abs:'core',obliques:'core',lowback:'core',glutes:'glutes',quads:'quads',adductors:'quads',hams:'hams',calves:'calves',tibialis:'calves'};
-const EXM={goblet:[['quads','glutes'],['adductors','abs','lowback']],squat:[['quads','glutes'],['adductors','abs','lowback']],legpress:[['quads','glutes'],['adductors','hams']],legext:[['quads'],[]],
+const EXM={sled:[['quads','glutes','calves'],['hams','abs']],ropes:[['delts'],['forearms','abs','biceps']],incwalk:[['glutes','calves'],['hams','quads']],kickback:[['glutes'],['hams']],pushdown:[['triceps'],[]],bikesprint:[['quads','glutes'],['hams','calves']],goblet:[['quads','glutes'],['adductors','abs','lowback']],squat:[['quads','glutes'],['adductors','abs','lowback']],legpress:[['quads','glutes'],['adductors','hams']],legext:[['quads'],[]],
  stepup:[['quads','glutes'],['hams','calves']],stepupsup:[['quads','glutes'],['hams','calves']],bss:[['quads','glutes'],['adductors','hams']],bsssup:[['quads','glutes'],['adductors','hams']],revlunge:[['quads','glutes'],['adductors','hams']],
  dbrdl:[['hams','glutes'],['lowback','forearms','traps']],rdl:[['hams','glutes'],['lowback','forearms','traps']],pullthrough:[['glutes','hams'],['lowback']],legcurl:[['hams'],['calves']],lyingcurl:[['hams'],['calves']],
  bbbridge:[['glutes'],['hams','adductors']],hipthrust:[['glutes'],['hams','adductors']],glutebridge:[['glutes'],['hams']],abduct:[['glutes'],[]],cableabd:[['glutes'],[]],
@@ -1510,7 +1546,7 @@ function startType(){clearInterval(TYPE_I);const els=[...document.querySelectorA
 /* =====================  WHATSAPP SYNC  =====================
  One tap sends a link that carries all logged data (compressed). Opening it on the other phone merges it in.
  No server: data only travels inside the WhatsApp message. */
-const SYNC_KEYS=['food','pace','start','profile','sessions','weights','measures','tests','steps','hands','daily','best','prs','swaps','lad','badges','song','goalTxt','ovr0','rv'];
+const SYNC_KEYS=['avoid','food','pace','start','profile','sessions','weights','measures','tests','steps','hands','daily','best','prs','swaps','lad','badges','song','goalTxt','ovr0','rv'];
 function b64u(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function unb64u(t){t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const b=atob(t),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
 async function packData(){const data={};SYNC_KEYS.forEach(k=>{if(S[k]!==undefined)data[k]=S[k]});const json=JSON.stringify({v:1,from:S.coach?'Coach Ibrahim':CLIENT.name,at:Date.now(),data});const raw=new TextEncoder().encode(json);
@@ -1524,7 +1560,7 @@ function sendSync(lead){const w=window.open('','_blank');packData().then(code=>{
   const url=(S.coach?'https://wa.me/?text=':'https://wa.me/'+COACH_WA+'?text=')+encodeURIComponent(msg);S.lastSync=Date.now();save();
   if(w)w.location=url;else location.href=url}).catch(()=>{if(w)w.close();toast('Could not build the link. Use the backup code in More.')})}
 const skey=s=>s.id||(s.d+'|'+s.day+'|'+s.dur+'|'+Object.keys(s.ex||{}).join(','));
-function mergeData(inc){const before=S.sessions.length;const add={sessions:0,weights:0,measures:0,tests:0};
+function mergeData(inc){S.avoid=Object.assign({},inc.avoid||{},S.avoid||{});const before=S.sessions.length;const add={sessions:0,weights:0,measures:0,tests:0};
  if(!S.sessions.length&&inc.start)S.start=inc.start;if(!S.sessions.length&&inc.profile)S.profile=Object.assign({},S.profile,inc.profile);
  const have=new Set(S.sessions.map(skey));(inc.sessions||[]).forEach(x=>{if(!have.has(skey(x))){S.sessions.push(x);add.sessions++}});S.sessions.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
  (inc.weights||[]).forEach(x=>{const i=S.weights.findIndex(y=>y.d===x.d);if(i<0){S.weights.push(x);add.weights++}else if((x.t||0)>(S.weights[i].t||0)&&x.kg!==S.weights[i].kg){S.weights[i]=x;add.weights++}});
@@ -1577,6 +1613,8 @@ document.addEventListener('click',e=>{
  case'dflag':{const d=today(),o=S.daily[d]=S.daily[d]||{};o[b.dataset.f]=!o[b.dataset.f];save();renderToday();setupCanvases();break}
  case'dstress':{const d=today(),o=S.daily[d]=S.daily[d]||{};o.stress=o.stress===+b.dataset.v?null:+b.dataset.v;save();renderToday();setupCanvases();break}
  case'pmeal':{const d=today(),h=S.hands[d]=S.hands[d]||{},i=+b.dataset.i;h.pm=(h.pm||0)>i?i:i+1;save();renderFood();break}
+ case'sym':{const kk=k;askConfirm('Stop this exercise?','Leg symptoms getting worse means this exercise is not right for you today. It comes off your plan and Coach Ibrahim gets a message.','Stop it',()=>skipEx(kk));break}
+ case'allow':{delete S.avoid[b.dataset.id];save();renderMore();toast('Back on the plan.');break}
  case'swap':openSwap(k);break;
  case'doswap':doSwap(+b.dataset.k,b.dataset.id);break;
  case'note':{const L=S.live,x=L.list.find(y=>y.k===k),lg=L.log[k];const t=document.querySelector(`[data-note="${k}"]`).value;lg.note=t;save();
@@ -1701,7 +1739,7 @@ window.addEventListener('resize',()=>setupCanvases());
 document.addEventListener('toggle',e=>{if(e.target.tagName==='DETAILS'){setupCanvases();if(e.target.id==='e1d'&&e.target.open)drawE1()}},true);
 
 /* =====================  BOOT  ===================== */
-load();rebuildBest();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
+load();rebuildBest();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();if(!S.plan2){S.swaps={};S.live=null;S.plan2=1;S.avoid=S.avoid||{};save()}renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
 </script>
 </body>
 </html>
