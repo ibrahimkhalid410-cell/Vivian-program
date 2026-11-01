@@ -350,6 +350,7 @@ const EX = {
  breathe:{n:'90/90 breathing',pat:'breath',bw:1,yt:'90 90 breathing exercise lying',cue:'On your back, feet on a bench, knees at 90°. 5 slow breaths: 4 seconds in through the nose, 6 seconds out. Session over, stress down.'}
 };
 
+['inclinedb','csrow','ohp','dbrdl','latraise','farmer','stepup','stepupsup','dbcurl','revlunge','bss','bsssup'].forEach(id=>{if(EX[id])EX[id].ph=1});
 /* =====================  POSES  =====================
  K(hipX, hipY, torso, thighF, shinF, thighB, shinB, uArmF, fArmF, uArmB, fArmB, footF, footB, ground)
  Limb angle 0 = straight down, +90 = forward. Torso 0 = upright. ground 1 = feet on floor, 0 = fixed, n = custom floor. */
@@ -629,6 +630,7 @@ const SWAPS = {
 };
 
 const WHY = {
+ comeback:['Why lighter after a break?','Strength and muscle stay almost the same for 2–3 weeks without training. What drops first is your feeling of the weights. One or two lighter sessions (about 90%, 2 rounds, 3 reps in the tank) bring the feeling back fast and safely, then you go straight back to full weights.'],
  back:['Why ask about your back?','On a sensitive day the squat and leg press switch to machines that keep your spine still (leg extension, supported step-ups). The rule from your doctor and me: training is good for the back, but anything that sends pain or tingling further down the leg gets stopped. Pain that stays in the back or eases is fine.'],
  circuit:['Why circuits now?','Three exercises back to back with rest only after the round keeps your heart rate high, so the same 50 minutes burn clearly more than straight sets, while the main lift stays heavy enough to keep your muscle (metabolic resistance training). Sweat itself is not fat loss, it is cooling. The fat loss comes from the calories: the training adds to the deficit, the food decides it.'],
  rate:['Why about 1% per week?','In a study on athletes, the group that lost 0.7% of bodyweight per week lost more fat and gained muscle, while the faster group (1.4%) lost less fat. Slightly faster than 0.7% is fine for 12 weeks. Faster than that costs muscle, and muscle is what gives you shape.'],
@@ -782,6 +784,9 @@ function resolveId(day,i,it,ankleSafe,backSafe){let id=S.swaps[day+':'+i]||it.id
 function buildSession(day,mode,ankleSafe,backSafe){const n=weekNo(),items=DAYS[day].items;
  let list=items.map((it,i)=>{let sets=it.sets;if(it.main&&extraSet(n))sets++;if(isDeload(n)&&it.g!=='P')sets=Math.max(2,sets-1);if(mode==='light')sets=Math.max(2,sets-1);
   return{k:i,g:it.g,id:resolveId(day,i,it,ankleSafe,backSafe),sets,r:it.r,main:!!it.main,rest:it.rest||75}});
+ if(mode==='comeback'){list.forEach(x=>{if(x.g!=='4')x.sets=Math.min(x.sets,day==='GD'?3:2);x.rest=Math.min(x.rest,45)});
+  /* lighter weights, but more sweat: short rests and a 12-minute steady add-on (low stress on the nervous system, high calorie burn) */
+  if(day!=='GD'&&!list.some(x=>x.id==='incwalk'))list.push({k:items.length,g:'5',id:'incwalk',sets:1,r:[12,12],main:false,rest:0,extra:1})}
  if(mode==='clutch'){const keep=[];const P=list.find(x=>x.g==='P');if(P)keep.push(Object.assign(P,{sets:2}));
   list.filter(x=>x.g==='1').forEach(x=>keep.push(Object.assign(x,{sets:Math.min(x.sets,3)})));list.filter(x=>x.g==='2').forEach(x=>keep.push(Object.assign(x,{sets:2})));list=keep}
  if(mode==='express'){const keep=[];const P=list.find(x=>x.g==='P');if(P)keep.push(Object.assign(P,{sets:2}));
@@ -918,7 +923,7 @@ function _renderToday(){if(S.live&&!PAUSE){renderSession();return}
 
 /* =====================  CHECK-IN  ===================== */
 let CI={};
-function openCheckin(day,clutch){CI={day,mood:null,energy:null,sleep:null,ankle:'Steady',time:clutch?'Clutch 30':'Full 50 min',light:false,back:'Calm'};drawCheckin()}
+function openCheckin(day,clutch){CI={day,mood:null,energy:null,sleep:null,ankle:'Steady',time:clutch?'Clutch 30':'Full 50 min',light:false,back:'Calm',cb:comebackDue()};drawCheckin()}
 function drawCheckin(){const f=['😣','😕','😐','🙂','😄'];
  const ok=CI.mood&&CI.energy&&CI.sleep;
  sheet(`<h3>Check-in: ${DAYS[CI.day].n}</h3><p class="small muted">Ten seconds. The session adapts to your answers.</p>
@@ -927,21 +932,23 @@ function drawCheckin(){const f=['😣','😕','😐','🙂','😄'];
  <div class="q">Sleep last night ${whyBtn('sleep')}</div><div class="chips">${['7h+','6–7h','Under 6h'].map(x=>`<button class="chip ${CI.sleep===x?'on':''}" data-ci="sleep" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Time today ${whyBtn('clutch')}</div><div class="chips">${['Full 50 min','Clutch 30'].map(x=>`<button class="chip ${CI.time===x?'on':''}" data-ci="time" data-v="${x}">${x}</button>`).join('')}</div>
  ${CI.time==='Clutch 30'?`<p class="small" style="margin:6px 0 0;color:var(--ball)">Clutch 30 today: ${buildSession(CI.day,'clutch',false).list.map(x=>EX[x.id].n).join(', ')}. Short prep, shorter rests.</p>`:''}
+ <div class="q">Coming back after a break? ${whyBtn('comeback')}</div><div class="chips"><button class="chip ${CI.cb?'on':''}" data-ci="cb" data-v="1">Comeback session: ~90% weights, 2 rounds</button></div>
  <div class="q">Lower back and left leg today ${whyBtn('back')}</div><div class="chips">${['Calm','Sensitive'].map(x=>`<button class="chip ${CI.back===x?'on':''}" data-ci="back" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Left ankle today ${whyBtn('ankle')}</div><div class="chips">${['Steady','A bit wobbly'].map(x=>`<button class="chip ${CI.ankle===x?'on':''}" data-ci="ankle" data-v="${x}">${x}</button>`).join('')}</div>
  <div class="q">Period</div><div class="chips"><button class="chip ${CI.light?'on':''}" data-ci="light" data-v="1">I want the lighter version today</button></div>
  <p class="small muted">Your choice, never automatic.</p>
  <button class="btn ball block ${ok?'':'dim'}" style="margin-top:16px" data-act="go" ${ok?'':'aria-disabled="true"'}>${ok?'Start session':'Answer the first three to start'}</button>`,{noAnim:CI.re});CI.re=1;
 }
-function modeOf(c){if(c.energy==='Drained')return'express';if(c.time==='Clutch 30')return'clutch';if(c.light)return'light';if(c.energy==='Okay'||c.sleep==='Under 6h')return'steady';return'full'}
-function modeTxt(m){const n=weekNo();if(isDeload(n)&&m!=='express'&&m!=='clutch')return'Deload week, RIR 3';
- return{clutch:'Clutch 30, counts as a full session',full:'Full session, RIR 1–2',steady:'Steady, RIR 2–3, no max attempts',express:'Express 20, counts as a full session',light:'Lighter version, RIR 3'}[m]}
+function modeOf(c){if(c.energy==='Drained')return'express';if(c.cb)return'comeback';if(c.time==='Clutch 30')return'clutch';if(c.light)return'light';if(c.energy==='Okay'||c.sleep==='Under 6h')return'steady';return'full'}
+function modeTxt(m){const n=weekNo();if(isDeload(n)&&m!=='express'&&m!=='clutch'&&m!=='comeback')return'Deload week, RIR 3';
+ return{clutch:'Clutch 30, counts as a full session',full:'Full session, RIR 1–2',steady:'Steady, RIR 2–3, no max attempts',express:'Express 20, counts as a full session',comeback:'Comeback: ~90% weights, 2 rounds, short rests + 12 min sweat walk',light:'Lighter version, RIR 3'}[m]}
 function startSession(){PAUSE=false;const mode=modeOf(CI),ankleSafe=CI.ankle!=='Steady';const backSafe=CI.back==='Sensitive';const b=buildSession(CI.day,mode,ankleSafe,backSafe);
- const log={};b.list.forEach(x=>{const sg=suggest(x.id,x);log[x.k]={sets:Array.from({length:x.sets},(_,i)=>({w:i===0&&sg.w!==''?String(sg.w):'',r:'',l:'',rt:'',d:0})),rir:null,note:'',fin:0}});
+ const log={};b.list.forEach(x=>{const sg=suggest(x.id,x);if(mode==='comeback'&&sg.w!==''&&!EX[x.id].assist){const inc=EX[x.id].inc||1;sg.w=Math.max(inc,Math.round(num(sg.w)*.9/inc)*inc)}log[x.k]={sets:Array.from({length:x.sets},(_,i)=>({w:i===0&&sg.w!==''?String(sg.w):'',r:'',l:'',rt:'',d:0})),rir:null,note:'',fin:0}});
  S.live={day:CI.day,mode,ankleSafe,backSafe,checkin:{mood:CI.mood,energy:CI.energy,sleep:CI.sleep,ankle:CI.ankle,light:CI.light,back:CI.back},t0:Date.now(),list:b.list,steps:b.steps,log,prep:[],open:null};
  save();closeSheet();renderSession();window.scrollTo(0,0);
  if(CI.day==='GD'&&isDeload(weekNo())&&mode!=='express'){rockyIntro();return}
- if(backSafe)toast('Sensitive back day: squats and leg press are swapped for machines that keep your back still. Stop anything that sends symptoms down the leg.','Coach Ibrahim');
+ if(mode==='comeback')toast('Comeback week: about 90% of your weights, 2 rounds, rests only 45 seconds, and a 12-minute incline walk at the end to sweat. Drink 500 ml of water before you start.','Coach Ibrahim');
+ else if(backSafe)toast('Sensitive back day: squats and leg press are swapped for machines that keep your back still. Stop anything that sends symptoms down the leg.','Coach Ibrahim');
  else if(ankleSafe)toast('Wobbly-ankle day: split squats and step-ups use support today, no jumping. Same strength work.','Coach Ibrahim');
  else if(mode==='express')toast('Low battery day. 20 minutes, and it still counts as a full session.','Coach Ibrahim')}
 
@@ -964,7 +971,7 @@ function renderSession(){const L=S.live,n=weekNo(),D=DAYS[L.day];const cs=curSte
  <button class="btn ball block" style="margin-top:18px;font-size:17px;padding:15px" data-act="finish">Finish session</button>
  <button class="btn ghost block" style="margin-top:8px" data-act="abandon">Cancel session</button>`;
  tickTimer();setupCanvases()}
-function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].items[x.k];
+function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].items[x.k]||{id:x.id,alt:[]};
  const isAct=act&&act.k===x.k,fin=exDone(x.k),open=isAct||L.open===x.k;
  const dnSets=lg.sets.filter(s=>s.d).length;
  const unit=unitLab(e);
@@ -973,7 +980,7 @@ function exCard(x,act){const L=S.live,e=EX[x.id],lg=L.log[x.k],item=DAYS[L.day].
  const sg=suggest(x.id,x),last=lastFor(x.id);
  const gh=ghostFor(x.id);const ob=BASE.find(b=>b.id===x.id);const lastTxt=last?`Last time, ${nice(last.d)}: ${last.s.map(s=>setTxt(e,s)).join(', ')}${last.rir!=null?', RIR '+last.rir:''}`:(ob?`Old plan (${ob.old}): ${ob.t}`:'No history yet.');
  const noW=e.bw;const cls='set'+(e.uni?' uni':'')+(noW?' nw':'');
- const wl=e.assist?'help kg':(e.id==='farmer'?'kg/hand':'kg');
+ const wl=e.assist?'help kg':e.ph?'<b style="color:var(--ball)">kg / hand</b>':e.id==='goblet'?'kg (1 db)':'kg';
  const head=`<div class="colh" style="grid-template-columns:${e.uni?(noW?'52px 1fr 1fr 34px':'52px 1fr 1fr 1fr 34px'):(noW?'52px 1fr 34px':'52px 1fr 1fr 34px')}"><span></span>${noW?'':`<span>${wl}</span>`}${e.uni?`<span>Left ${unit}</span><span>Right ${unit}</span>`:`<span>${unit}</span>`}<span></span></div>`;
  const rows=lg.sets.map((s,i)=>{const on=isAct&&act.i===i;const dis=s.d?'':'';
   const wIn=noW?'':`<input type="number" inputmode="decimal" enterkeyhint="next" data-k="${x.k}" data-i="${i}" data-f="w" value="${esc(s.w)}" placeholder="${sg.w!==''?sg.w:'kg'}" aria-label="Set ${i+1} weight">`;
@@ -1000,10 +1007,16 @@ function skipEx(k){const L=S.live,x=L.list.find(y=>y.k===k),e=EX[x.id],lg=L.log[
  S.avoid=S.avoid||{};S.avoid[x.id]=today();save();renderSession();
  toast(e.n+' is off your plan until Coach Ibrahim checks it. A safe swap comes next time.','Coach Ibrahim');
  wa(`⚠️ Vivian: leg symptoms got worse during ${e.n} (${DAYS[L.day].n}, ${nice(today())}). I stopped it. Sets done before: ${lg.sets.filter(s=>s.d&&!s.skip).map(s=>setTxt(e,s)).join(', ')||'none'}`)}
+let PHQ=null;
+/* comeback is suggested for 7 days after any break of 7+ days */
+function comebackDue(){const ds=[...new Set(S.sessions.map(z=>z.d))].sort();if(!ds.length)return false;if(diffDays(ds[ds.length-1],today())>=7)return true;
+ for(let i=ds.length-1;i>0;i--){if(diffDays(ds[i-1],ds[i])>=7)return diffDays(ds[i],today())<7}return false}
 function setFilled(e,s){return e.uni?(s.l!==''&&s.rt!==''):s.r!==''}
 function completeSet(k,i){const L=S.live,x=L.list.find(y=>y.k===k),e=EX[x.id],s=L.log[k].sets[i];
  if(!setFilled(e,s)){toast(e.uni?'Add reps for both sides first.':'Add your reps first.');return}
  if(!e.bw&&!e.assist&&!(num(s.w)>0)){toast('Add the weight in kg first, so your progress can be measured.');const wi=document.querySelector(`input[data-k="${k}"][data-i="${i}"][data-f="w"]`);wi&&wi.focus();return}
+ if(e.ph&&!s.phok&&!e.bw){const w=num(s.w),prev=[];S.sessions.forEach(z=>{const q=z.ex[x.id];if(q)q.s.forEach(t=>{const v=num(t.w);if(v)prev.push(v)})});L.log[k].sets.forEach((t,j)=>{if(j!==i&&t.d){const v=num(t.w);if(v)prev.push(v)}});const mx=prev.length?Math.max(...prev):null;
+  if(w&&mx&&w>=mx*1.6&&w-mx>=4){PHQ={k,i};sheet(`<h3>One dumbbell or both?</h3><p>You typed <b>${w} kg</b>. For dumbbell exercises the page counts <b>one dumbbell</b> (kg per hand). Your heaviest so far: <b>${mx} kg per hand</b>.</p><div class="grid2" style="margin-top:14px"><button class="btn ball" data-act="phfix">It was 2 × ${+(w/2).toFixed(2)} kg</button><button class="btn" data-act="phok">Yes, one ${w} kg dumbbell</button></div>`);return}}
  s.d=1;
  const nx=L.log[k].sets[i+1];if(nx&&!nx.d&&nx.w===''&&s.w!=='')nx.w=s.w;
  const idx=L.steps.findIndex(st=>st.k===k&&st.i===i),cur=L.steps[idx];
@@ -1218,7 +1231,13 @@ function lineChart(c,ser,empty){const dpr=window.devicePixelRatio||1,W=c.clientW
   s.pts.forEach(p=>{x.beginPath();x.arc(X(pd(p.d).getTime()),Y(p.v),s.dots??3,0,7);x.fill()})})}
 
 /* =====================  BODY  ===================== */
-const MF=[['weight','Weight','kg'],['waist','Waist (at the navel)'],['hips','Hips (widest point)'],['chest','Chest'],['neck','Neck (below the larynx)'],['thighL','Left thigh'],['thighR','Right thigh'],['armL','Left arm'],['armR','Right arm']];
+const MRANGE={weight:[35,200],waist:[50,150],hips:[70,170],chest:[60,150],neck:[26,50],thighL:[35,95],thighR:[35,95],armL:[18,50],armR:[18,50]};
+const MSHORT={weight:'Weight',waist:'Waist',hips:'Hips',chest:'Chest',neck:'Neck',thighL:'Thigh L',thighR:'Thigh R',armL:'Arm L',armR:'Arm R'};
+function mOdd(m){return Object.entries(m).filter(([k,v])=>MRANGE[k]&&(v<MRANGE[k][0]||v>MRANGE[k][1])).map(([k,v])=>`${MSHORT[k]} ${v}`)}
+function storeMeasure(m){if(m.weight!=null){S.weights=S.weights.filter(x=>x.d!==m.d);S.weights.push({d:m.d,kg:m.weight,t:Date.now()})}m.t=Date.now();S.measures.push(m);mergeMeasures();const nb=checkBadges();save();renderBody();toast(nb.length?'Badge unlocked: '+nb.map(x=>x.n).join(', '):'Measurements saved.')}
+function openMEdit(d){const m=S.measures.find(x=>x.d===d)||{d};const w=S.weights.find(x=>x.d===d);sheet(`<h3>Edit ${nice(d)}</h3><p class="small muted">Fix a typo or add a missing number. Empty = keep it empty.</p>${MF.map(([k,l,u])=>`<div class="mrow">${bodyIcon(k)}<label for="e_${k}">${l}</label><input type="number" inputmode="decimal" id="e_${k}" value="${k==='weight'?(w?w.kg:''):(m[k]??'')}" placeholder="${u||'cm'}"></div>`).join('')}<button class="btn primary block" data-act="msave2" data-d="${d}">Save</button>`)}
+function saveMEdit(d){const m={d};MF.forEach(([k])=>{const v=num($('#e_'+k).value);if(v!=null)m[k]=v});const odd=mOdd(m);const go=()=>{S.measures=S.measures.filter(x=>x.d!==d);if(m.weight==null)S.weights=S.weights.filter(x=>x.d!==d);closeSheet();storeMeasure(m)};if(odd.length)askConfirm('Check these numbers',odd.join(', ')+' look unusual. Typo?','Save anyway',go);else go()}
+const MF=[['weight','Weight','kg'],['waist','Waist (at the navel)'],['hips','Hips (widest point)'],['chest','Chest'],['neck','Neck (below the larynx)'],['thighL','Left thigh (halfway hip to knee)'],['thighR','Right thigh (same spot)'],['armL','Left arm (middle, relaxed)'],['armR','Right arm (same spot)']];
 function bodyIcon(f){const y={weight:0,neck:10.5,chest:16,waist:22,hips:27,thighL:33,thighR:33,armL:17,armR:17}[f];
  let mark='';if(f==='weight')mark='<path d="M8 41h14" stroke="#F07F2E" stroke-width="2"/>';else if(f.startsWith('arm'))mark=`<path d="M${f==='armL'?20:4} ${y}h6" stroke="#F07F2E" stroke-width="2.4"/>`;
  else if(f.startsWith('thigh'))mark=`<path d="M${f==='thighL'?15.5:9} ${y}h5.5" stroke="#F07F2E" stroke-width="2.4"/>`;else mark=`<path d="M${f==='neck'?12.5:8.5} ${y}h${f==='neck'?5:13}" stroke="#F07F2E" stroke-width="2.4"/>`;
@@ -1227,7 +1246,9 @@ function renderBody(){const ws=weightsSorted(),w7=avg7(),wp=avg7(addDays(today()
  let proj='Log your weight 3 to 4 mornings a week. After 2 weeks you will see your real pace here.';
  if(sl!=null){if(sl<-0.01&&w7){const days=Math.round((w7-g)/-sl);proj=`Pace: ${(sl*7).toFixed(2)} kg per week. At this pace ${g} kg arrives around ${nice(addDays(today(),days))}.`}else proj='Pace is flat right now. Check sleep, steps and portions; the trend usually moves within 2 weeks.'}
  const ms=S.measures,m0=ms[0],last=ms[ms.length-1];const next=last?addDays(last.d,14):today();
- const hist=ms.slice().reverse().map((m,j)=>`<tr><td>${nice(m.d)}</td>${['waist','hips','thighL','armL'].map(k=>`<td>${m[k]??'-'}${m0&&m!==m0&&m[k]&&m0[k]?`<br><span class="small" style="color:${m[k]-m0[k]<=0?'#4FD1A5':'#F2C14E'}">${(m[k]-m0[k]>0?'+':'')+(m[k]-m0[k]).toFixed(1)}</span>`:''}</td>`).join('')}<td><button class="link small" data-act="delm" data-i="${ms.length-1-j}" aria-label="Delete">✕</button></td></tr>`).join('');
+ const keys=MF.map(([k])=>k);const rowsD=[...new Set(ms.map(m=>m.d))].sort();const firstV={};const cell=(d,k)=>{if(k==='weight'){const w=S.weights.find(x=>x.d===d);return w?w.kg:null}const m=ms.find(x=>x.d===d);return m&&m[k]!=null?m[k]:null};
+ rowsD.forEach(d=>keys.forEach(k=>{const v=cell(d,k);if(v!=null&&firstV[k]==null)firstV[k]=v}));
+ const hist=rowsD.slice().reverse().map(d=>`<tr><td style="position:sticky;left:0;background:var(--court)"><button class="link small" data-act="medit" data-d="${d}">${nice(d)} ✎</button></td>${keys.map(k=>{const v=cell(d,k),f=firstV[k];const df=v!=null&&f!=null&&v!==f?v-f:null;return`<td>${v??'–'}${df!=null?`<br><span class="small" style="color:${df<=0?'#4FD1A5':'#F2C14E'}">${(df>0?'+':'')+df.toFixed(1)}</span>`:''}</td>`}).join('')}<td><button class="link small" data-act="delm" data-i="${ms.findIndex(x=>x.d===d)}" aria-label="Delete">✕</button></td></tr>`).join('');
 const pl=plateau(); const bf=bodyFat(Object.assign({},...ms.map(m=>Object.fromEntries(Object.entries(m).filter(([k,v])=>v!=null&&v!=='')))));const lw=latestW();
  view().innerHTML=`<h2>Body</h2>
  <section class="sec"><div class="row between"><h3>Weight trend</h3>${whyBtn('trend')}</div>
@@ -1243,7 +1264,7 @@ const pl=plateau(); const bf=bodyFat(Object.assign({},...ms.map(m=>Object.fromEn
   <div class="panel"><label class="f" for="md">Date</label><input type="date" id="md" value="${today()}">
   ${MF.map(([k,l,u])=>`<div class="mrow">${bodyIcon(k)}<label for="m_${k}">${l}</label><input type="number" inputmode="decimal" id="m_${k}" placeholder="${u||'cm'}"></div>`).join('')}
   <button class="btn primary block" data-act="savem">Save measurements</button></div>
-  ${hist?`<div class="tblw" style="margin-top:10px"><table><tr><th>Date</th><th>Waist</th><th>Hips</th><th>L thigh</th><th>L arm</th><th></th></tr>${hist}</table></div><p class="small muted">Green = smaller than your first measurement.</p>`:''}</section>`;
+  ${hist?`<h3 style="margin-top:16px;font-size:19px">All measurements</h3><div class="tblw" style="margin-top:8px"><table style="min-width:640px"><tr><th style="position:sticky;left:0;background:var(--court)">Date</th>${MF.map(([k])=>`<th>${MSHORT[k]}</th>`).join('')}<th></th></tr>${hist}</table></div><p class="small muted">Change vs your first number for each spot: green = smaller. Tap a date to fix a typo. Swipe the table sideways for all columns.</p>`:''}</section>`;
  const c=$('#wc');const pts=ws.filter(w=>!w.c).map(w=>({d:w.d,v:w.kg})),cp=ws.filter(w=>w.c).map(w=>({d:w.d,v:w.kg}));const av=ws.map(w=>({d:w.d,v:avg7(w.d)}));lineChart(c,[{col:'rgba(148,182,212,.6)',pts,dots:2.5,nol:1},{col:'#F28DB2',pts:cp,dots:3.5,nol:1},{col:'#F07F2E',pts:av,dots:0}],'Log a few mornings to draw your trend.')}
 
 /* =====================  FOOD  ===================== */
@@ -1529,6 +1550,13 @@ function musclesNowHTML(){const st=muscleState();let view;if(FEX&&EXM[FEX])view=
  return`<select id="fex" aria-label="Show"><option value="">My progress</option>${Object.entries(groups).map(([d,ids])=>`<optgroup label="${esc(d)}">${ids.map(id=>`<option value="${id}" ${FEX===id?'selected':''}>${esc(EX[id].n)}</option>`).join('')}</optgroup>`).join('')}</select>
  <div class="fwrap">${figSVG(view)}</div><div class="flegend small">${legend}</div><div class="panel" style="margin-top:8px">${info}</div>`}
 
+/* one-time data fixes (1 Nov 2026): on 25 Oct the dumbbell lifts were typed as the total of both hands; impossible tape numbers removed; same-day measurement rows merged */
+function mergeMeasures(){const by={};S.measures.slice().sort((a,b)=>(a.t||0)-(b.t||0)).forEach(m=>{const o=by[m.d]=by[m.d]||{d:m.d};Object.entries(m).forEach(([k,v])=>{if(v!=null&&v!=='')o[k]=v})});S.measures=Object.values(by).sort((a,b)=>a.d<b.d?-1:1)}
+function fixData(){if(!S.fix2){S.sessions.forEach(z=>{const x=z.ex&&z.ex.latraise;if(x)x.s.forEach(t=>{const v=num(t.w);if(v)t.w=String(+(v/2).toFixed(2))})});S.prs=S.prs.filter(p=>p.id!=='latraise');S.fix2=1;save()}
+ if(S.fix1)return;const ids=['inclinedb','csrow','ohp'];const ss=S.sessions.find(z=>z.id==='mvniiy82f76g');
+ if(ss){ids.forEach(id=>{const x=ss.ex[id];if(x)x.s.forEach(t=>{const v=num(t.w);if(v)t.w=String(+(v/2).toFixed(2))})});
+  const bad=new Set(ids.map(id=>EX[id].n));ss.prs=(ss.prs||[]).filter(p=>!bad.has(p.split(': ')[0]));S.prs=S.prs.filter(p=>!(p.d==='2026-10-25'&&ids.includes(p.id)))}
+ S.measures.forEach(m=>{if(m.neck!=null&&m.neck<26)delete m.neck;['armL','armR'].forEach(k=>{if(m[k]!=null&&m[k]<18)delete m[k]})});mergeMeasures();S.fix1=1;save()}
 /* =====================  CONFIRM DIALOG  ===================== */
 let CONFIRM_FN=null;
 function askConfirm(title,msg,yes,fn){CONFIRM_FN=fn;sheet(`<h3>${esc(title)}</h3><p>${esc(msg)}</p><div class="grid2" style="margin-top:14px"><button class="btn" data-act="close">Keep it</button><button class="btn ball" data-act="cfyes">${esc(yes)}</button></div>`)}
@@ -1592,7 +1620,7 @@ document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.cl
 $('#restSkip').addEventListener('click',()=>{clearInterval(restI);$('#rest').classList.add('hidden')});
 document.addEventListener('click',e=>{
  const go=e.target.closest('[data-tab-go]');if(go){TAB=go.dataset.tabGo;renderTab();window.scrollTo(0,0);return}
- const ci=e.target.closest('[data-ci]');if(ci){const k=ci.dataset.ci;CI[k]=k==='mood'?+ci.dataset.v:k==='light'?!CI.light:ci.dataset.v;const y=$('.sheet').scrollTop;drawCheckin();$('.sheet').scrollTop=y;return}
+ const ci=e.target.closest('[data-ci]');if(ci){const k=ci.dataset.ci;CI[k]=k==='mood'?+ci.dataset.v:k==='light'?!CI.light:k==='cb'?!CI.cb:ci.dataset.v;const y=$('.sheet').scrollTop;drawCheckin();$('.sheet').scrollTop=y;return}
  const fi=e.target.closest('[data-fin]');if(fi){const k=fi.dataset.fin;FIN[k]=k==='felt'?fi.dataset.v:+fi.dataset.v;const y=$('.sheet').scrollTop;drawFinish();$('.sheet').scrollTop=y;return}
  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,k=b.dataset.k!=null?+b.dataset.k:null;
  if(a==='flip'){if(e.target.closest('.why'))return;$('#pcard').classList.toggle('flip');return}
@@ -1615,6 +1643,10 @@ document.addEventListener('click',e=>{
  case'pmeal':{const d=today(),h=S.hands[d]=S.hands[d]||{},i=+b.dataset.i;h.pm=(h.pm||0)>i?i:i+1;save();renderFood();break}
  case'sym':{const kk=k;askConfirm('Stop this exercise?','Leg symptoms getting worse means this exercise is not right for you today. It comes off your plan and Coach Ibrahim gets a message.','Stop it',()=>skipEx(kk));break}
  case'allow':{delete S.avoid[b.dataset.id];save();renderMore();toast('Back on the plan.');break}
+ case'phfix':{const q=PHQ,t=S.live.log[q.k].sets[q.i];t.w=String(+(num(t.w)/2).toFixed(2));t.phok=1;closeSheet();completeSet(q.k,q.i);break}
+ case'phok':{const q=PHQ;S.live.log[q.k].sets[q.i].phok=1;closeSheet();completeSet(q.k,q.i);break}
+ case'medit':openMEdit(b.dataset.d);break;
+ case'msave2':saveMEdit(b.dataset.d);break;
  case'swap':openSwap(k);break;
  case'doswap':doSwap(+b.dataset.k,b.dataset.id);break;
  case'note':{const L=S.live,x=L.list.find(y=>y.k===k),lg=L.log[k];const t=document.querySelector(`[data-note="${k}"]`).value;lg.note=t;save();
@@ -1632,7 +1664,7 @@ document.addEventListener('click',e=>{
  case'logw':{const w=num($('#bw').value);if(w==null||w<30||w>250){toast('Enter your weight in kg.');return}S.weights=S.weights.filter(x=>x.d!==today());S.weights.push({d:today(),kg:w,c:$('#bc').checked?1:0,t:Date.now()});ratings();save();renderBody();toast('Logged. The average is what counts.');break}
  case'delw':{S.weights=S.weights.filter(x=>!(x.d===b.dataset.d&&String(x.kg)===b.dataset.kg));save();renderBody();break}
  case'savem':{const m={d:$('#md').value||today()};let any=0;MF.forEach(([f])=>{const v=num($('#m_'+f).value);if(v!=null){m[f]=v;any=1}});if(!any){toast('Enter at least one measurement.');return}
-  if(m.weight!=null){S.weights=S.weights.filter(x=>x.d!==m.d);S.weights.push({d:m.d,kg:m.weight,t:Date.now()})}m.t=Date.now();S.measures.push(m);S.measures.sort((a,b)=>a.d<b.d?-1:1);const nb=checkBadges();save();renderBody();toast(nb.length?'Badge unlocked: '+nb.map(x=>x.n).join(', '):'Measurements saved.');break}
+  {const odd=mOdd(m);if(odd.length){askConfirm('Check these numbers',odd.join(', ')+' look unusual. Typo? Neck is usually 28–45 cm, arm 22–45 cm.','Save anyway',()=>storeMeasure(m));break}}storeMeasure(m);break}
  case'delm':{const i=+b.dataset.i;askConfirm('Delete this measurement?','This removes the whole row for that date.','Delete',()=>{S.measures.splice(i,1);save();renderBody()});break}
  case'hand':{const d=today(),h=S.hands[d]=S.hands[d]||{},kk=b.dataset.h,i=+b.dataset.i;h[kk]=(h[kk]||0)>i?i:i+1;save();renderFood();break}
  case'supp':{const d=today(),h=S.hands[d]=S.hands[d]||{};h[b.dataset.s]=!h[b.dataset.s];save();renderFood();break}
@@ -1739,7 +1771,7 @@ window.addEventListener('resize',()=>setupCanvases());
 document.addEventListener('toggle',e=>{if(e.target.tagName==='DETAILS'){setupCanvases();if(e.target.id==='e1d'&&e.target.open)drawE1()}},true);
 
 /* =====================  BOOT  ===================== */
-load();rebuildBest();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();if(!S.plan2){S.swaps={};S.live=null;S.plan2=1;S.avoid=S.avoid||{};save()}renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
+load();fixData();rebuildBest();{const r=ratings();if(S.ovr0==null&&r.ovr!=null)S.ovr0=r.ovr}save();if(!S.plan2){S.swaps={};S.live=null;S.plan2=1;S.avoid=S.avoid||{};save()}renderTab();checkIncoming();window.addEventListener('hashchange',checkIncoming);
 </script>
 </body>
 </html>
